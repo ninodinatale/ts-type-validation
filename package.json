@@ -1,0 +1,35 @@
+{
+  "name": "typesafety",
+  "version": "0.0.1",
+  "description": "Decorators to enhance type safety.",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "tsc -w",
+    "test": "ts-node node_modules/jasmine/bin/jasmine"
+  },
+  "keywords": [
+    "javascript",
+    "typescript",
+    "type",
+    "safe",
+    "safety",
+    "typesafety",
+    "decorator",
+    "validation",
+    "node",
+    "js",
+    "ts"
+  ],
+  "author": "Nino Di Natale",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jasmine": "^3.3.12",
+    "jasmine": "^3.4.0",
+    "ts-node": "^8.1.0",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
+  },
+  "dependencies": {
+    "reflect-metadata": "^0.1.13"
+  }
+}
