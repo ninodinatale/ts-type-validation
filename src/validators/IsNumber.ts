@@ -1,9 +1,15 @@
-import { ErrorFunction, DecoratorWrapper, DecoratorFunction } from './core/types';
-import { decorate } from './core';
+import {
+  DecoratorFunction,
+  ErrorFunction,
+  ParameterDecoratorArgs, PropertyDecoratorArgs,
+  DecoratorFactoryArgs, Types
+} from './core/types';
+import { decoratorFactory } from './core';
 
-export function IsNumber(target: any, key: string): void;
-export function IsNumber(errorFn: ErrorFunction): DecoratorFunction;
+export function IsNumber(...args: PropertyDecoratorArgs): DecoratorFunction;
+export function IsNumber(...args: ParameterDecoratorArgs): DecoratorFunction;
+export function IsNumber(errorFunction: ErrorFunction): DecoratorFunction;
 
-export function IsNumber(targetOrErrorFn: ErrorFunction, key?: string): DecoratorWrapper {
-  return decorate('number', targetOrErrorFn, key);
+export function IsNumber(...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: Types.Number}, ...args);
 }

@@ -1,9 +1,15 @@
-import { decorate } from './core';
-import { DecoratorFunction, DecoratorWrapper, ErrorFunction } from './core/types';
+import {
+  DecoratorFunction,
+  ErrorFunction,
+  ParameterDecoratorArgs, PropertyDecoratorArgs,
+  DecoratorFactoryArgs, Types
+} from './core/types';
+import { decoratorFactory } from './core';
 
-export function IsString(target: any, key: string): void;
-export function IsString(errorFn: ErrorFunction): DecoratorFunction
+export function IsString(...args: PropertyDecoratorArgs): DecoratorFunction;
+export function IsString(...args: ParameterDecoratorArgs): DecoratorFunction;
+export function IsString(errorFunction: ErrorFunction): DecoratorFunction;
 
-export function IsString(targetOrErrorFn: ErrorFunction, key?: string): DecoratorWrapper {
-  return decorate('string', targetOrErrorFn, key);
+export function IsString(...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: Types.String}, ...args);
 }

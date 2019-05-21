@@ -1,12 +1,11 @@
-import { DecoratorFunction, ErrorFunction, ValidatedType } from './core/types';
-import { defineProperty, ordinaryIsValidFn } from './core';
+import {
+  DecoratorFactoryArgs,
+  DecoratorFunction,
+} from './core/types';
+import { decoratorFactory } from './core';
 
-export function IsEnumOf<Enum>(_enum: Enum, errorFn?: ErrorFunction): DecoratorFunction {
-  return (target: any, key: string) => {
-    defineProperty.bind({
-      expectedType: {enum: _enum}, errorFn: errorFn, isValidFn: (value: any) => _isValidEnum.call(null, value, _enum)
-    })(target, key);
-  };
+export function IsEnumOf<Enum>(_enum: Enum, ...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: _enum, isValidFn: (value: any) => _isValidEnum(value, _enum)}, ...args);
 }
 
 function _isValidEnum<Enum>(value: any, _enum: Enum): boolean {

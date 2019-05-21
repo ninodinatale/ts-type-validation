@@ -1,5 +1,4 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsUnionOf } from '../../../src/validators/IsUnionOf';
+import { TYPES } from './helpers/test-helper';
 import { IsEnumOf } from '../../../src/validators/IsEnumOf';
 
 describe('@IsEnumOf', () => {

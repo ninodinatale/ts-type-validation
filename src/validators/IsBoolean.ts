@@ -1,9 +1,15 @@
-import { ErrorFunction, DecoratorWrapper, DecoratorFunction } from './core/types';
-import { decorate } from './core';
+import {
+  DecoratorFunction,
+  ErrorFunction,
+  ParameterDecoratorArgs, PropertyDecoratorArgs,
+  DecoratorFactoryArgs, Types
+} from './core/types';
+import { decoratorFactory } from './core';
 
-export function IsBoolean(target: any, key: string): void;
-export function IsBoolean(errorFn: ErrorFunction): DecoratorFunction;
+export function IsBoolean(...args: PropertyDecoratorArgs): DecoratorFunction;
+export function IsBoolean(...args: ParameterDecoratorArgs): DecoratorFunction;
+export function IsBoolean(errorFunction: ErrorFunction): DecoratorFunction;
 
-export function IsBoolean(targetOrErrorFn: ErrorFunction, key?: string): DecoratorWrapper {
-  return decorate('boolean', targetOrErrorFn, key);
+export function IsBoolean(...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: Types.Boolean}, ...args);
 }

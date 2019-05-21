@@ -1,12 +1,11 @@
-import { DecoratorFunction, ErrorFunction, ValidatedType } from './core/types';
-import { defineProperty, ordinaryIsValidFn } from './core';
+import {
+  DecoratorFactoryArgs,
+  DecoratorFunction, ValidatedType
+} from './core/types';
+import { decoratorFactory, ordinaryIsValidFn } from './core';
 
-export function IsTupleOf(tupleTypes: ValidatedType[], errorFn?: ErrorFunction): DecoratorFunction {
-  return (target: any, key: string) => {
-    defineProperty.bind({
-      expectedType: {tuple: tupleTypes}, errorFn: errorFn, isValidFn: (value: any) => _isValidTuple.call(null, value, tupleTypes)
-    })(target, key);
-  };
+export function IsTupleOf(tupleTypes: ValidatedType[], ...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: tupleTypes, isValidFn: (value: any) => _isValidTuple(value, tupleTypes)}, ...args);
 }
 
 function _isValidTuple(value: any, tupleTypes: ValidatedType[]): boolean {

@@ -1,27 +1,50 @@
 import { throwTypeErrorFor } from './errors';
 import {
-  DecoratorWrapper,
+  DecoratorFunction,
   ErrorFunction,
   ValidatedType,
-  ValidationFunction,
-  ComposedType
+  DecoratorTarget,
+  OrdinaryDecoratorFactoryArgs,
+  OrdinaryDecoratorFactoryThisContext,
+  DecoratorFactoryArgs, DecoratorFactoryThisContext
 } from './types';
+import { isDecoratorFactoryArgs, isExtendedDecoratorFactoryArgs, isParameterDecorator, isPropertyDecorator } from './type-guards';
+import { removeTrailingUndefined } from './utils';
 
-function decorate(expectedType: ValidatedType, targetOrErrorFn: ErrorFunction | any, key?: string): DecoratorWrapper {
-  const isValidFn = ordinaryIsValidFnCaller.call(null, expectedType);
-  if (typeof targetOrErrorFn === 'function' && key == null) {
-    return defineProperty.bind({expectedType, errorFn: targetOrErrorFn, isValidFn});
-  } else if (key) {
-    defineProperty.bind({
-      expectedType,
-      errorFn: throwTypeErrorFor.bind(null, targetOrErrorFn, key, typeof expectedType),
-      isValidFn
-    })(targetOrErrorFn, key);
+export function decoratorFactory(this: DecoratorFactoryThisContext, ...args: DecoratorFactoryArgs): DecoratorFunction {
+  if (!this.isValidFn) {
+    this.isValidFn = getOrdinaryIsValidFn(this.expectedType);
+  }
+  removeTrailingUndefined(args); // TODO why are there trailing undefineds itfp
+  if (isExtendedDecoratorFactoryArgs(args)) {
+    return _ordinaryDecoratorFactory.bind(Object.assign(this, {errorFn: args.length ? args[0] : throwTypeErrorFor}));
+  } else if (isDecoratorFactoryArgs(args)) {
+    _ordinaryDecoratorFactory.call(Object.assign(this, {
+      errorFn: throwTypeErrorFor,
+      isValidFn: getOrdinaryIsValidFn(this.expectedType)
+    }), ...args);
+  } else {
+    throw new Error('Not a valid decorator');
   }
 }
 
-function defineProperty(this: { expectedType: ValidatedType | ComposedType, errorFn?: ErrorFunction, isValidFn: ValidationFunction }, target: any, key: string): void {
-  const sym = Symbol();
+function _ordinaryDecoratorFactory(this: OrdinaryDecoratorFactoryThisContext, ...args: OrdinaryDecoratorFactoryArgs) {
+  removeTrailingUndefined(args); // TODO why are there trailing undefineds itfp
+  if (isParameterDecorator(args)) {
+    return _installValidatorForParameter.apply(this, args);
+  } else if (isPropertyDecorator(args)) {
+    return installValidatorForProperty.apply(this, args);
+  } else {
+    throw new Error('Not a valid decorator');
+  }
+}
+
+function _installValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext, target: DecoratorTarget, key: string, parameterIndex: number): void {
+  // TODO
+}
+
+export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisContext, target: DecoratorTarget, key: string): void {
+  const sym: any = Symbol();
   target[sym] = null;
   Object.defineProperty(target, key, {
     get: () => target[sym],
@@ -35,11 +58,12 @@ function defineProperty(this: { expectedType: ValidatedType | ComposedType, erro
   });
 }
 
-function ordinaryIsValidFnCaller(expectedType: ValidatedType) {
-  return (value: any) => ordinaryIsValidFn.call(null, value, expectedType);
+// TODO: may be unwrapped by using .bind(), problem is here wo do not know `value` yet
+export function getOrdinaryIsValidFn(expectedType: ValidatedType) {
+  return (value: any) => ordinaryIsValidFn(value, expectedType);
 }
 
-function ordinaryIsValidFn(value: any, expectedType: ValidatedType): boolean {
+export function ordinaryIsValidFn(value: any, expectedType: ValidatedType): boolean {
   if (typeof value !== expectedType) {
     if (typeof value === 'object' && typeof expectedType === 'function') {
       if (!(value instanceof expectedType)) {
@@ -52,12 +76,10 @@ function ordinaryIsValidFn(value: any, expectedType: ValidatedType): boolean {
   return true;
 }
 
-function _callErrorFn(target: any, key: string, expectedType: ValidatedType | ComposedType, value: any, errorCb?: ErrorFunction) {
+function _callErrorFn(target: any, key: string, expectedType: ValidatedType, value: any, errorCb?: ErrorFunction) {
   if (errorCb) {
     errorCb(value);
   } else {
-    throwTypeErrorFor(target, key, expectedType, value);
+    throwTypeErrorFor();
   }
 }
-
-export { decorate, defineProperty, ordinaryIsValidFnCaller, ordinaryIsValidFn };

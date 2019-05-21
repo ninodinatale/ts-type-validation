@@ -1,12 +1,11 @@
-import { DecoratorFunction, ErrorFunction, ValidatedType } from './core/types';
-import { defineProperty, ordinaryIsValidFn } from './core';
+import {
+  DecoratorFactoryArgs,
+  DecoratorFunction, ValidatedType
+} from './core/types';
+import { decoratorFactory, ordinaryIsValidFn } from './core';
 
-export function IsUnionOf(unionTypes: ValidatedType[], errorFn?: ErrorFunction): DecoratorFunction {
-  return (target: any, key: string) => {
-    defineProperty.bind({
-      expectedType: {union: unionTypes}, errorFn: errorFn, isValidFn: (value: any) => _isValidUnion.call(null, value, unionTypes)
-    })(target, key);
-  };
+export function IsUnionOf(unionTypes: ValidatedType[], ...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: unionTypes, isValidFn: (value: any) => _isValidUnion(value, unionTypes)}, ...args);
 }
 
 function _isValidUnion(value: any, unionTypes: ValidatedType[]): boolean {

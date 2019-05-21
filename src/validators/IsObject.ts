@@ -1,8 +1,14 @@
-import { DecoratorFunction, ErrorFunction } from './core/types';
-import { defineProperty, ordinaryIsValidFnCaller } from './core';
+import {
+  DecoratorFactoryArgs,
+  DecoratorFunction,
+  ErrorFunction,
+  ValidatedType
+} from './core/types';
+import { decoratorFactory } from './core';
 
-export function IsObject(objectType: Object, errorFn?: ErrorFunction): DecoratorFunction {
-  return (target: any, key: string) => {
-    defineProperty.bind({expectedType: objectType, errorFn: errorFn, isValidFn: ordinaryIsValidFnCaller.call(null, objectType)})(target, key);
-  };
+export function IsObject(objectType: ValidatedType, errorFunction: ErrorFunction): DecoratorFunction;
+export function IsObject(objectType: ValidatedType): DecoratorFunction;
+
+export function IsObject(objectType: ValidatedType, ...args: DecoratorFactoryArgs): DecoratorFunction {
+  return decoratorFactory.call({expectedType: objectType}, ...args);
 }
