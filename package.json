@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "tsc -w",
-    "test": "ts-node node_modules/jasmine/bin/jasmine"
+    "test": "node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register"
   },
   "keywords": [
     "javascript",

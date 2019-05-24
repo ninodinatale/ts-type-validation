@@ -61,7 +61,8 @@ describe('@IsBoolean', () => {
 class TestClass {}
 
 class HelperClass {
-  @IsBoolean
+
+  @IsBoolean()
   boolean: boolean;
 
   @IsBoolean(() => console.error(CUSTOM_ERROR))

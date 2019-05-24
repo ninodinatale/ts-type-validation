@@ -1,15 +1,9 @@
-import {
-  DecoratorFunction,
-  ErrorFunction,
-  ParameterDecoratorArgs, PropertyDecoratorArgs,
-  DecoratorFactoryArgs, Types
-} from './core/types';
+import { DecoratorFunction, ErrorFunction, PrimitiveType, OrdinaryValidatorArgs } from './core/types';
 import { decoratorFactory } from './core';
 
-export function IsFunction(...args: PropertyDecoratorArgs): DecoratorFunction;
-export function IsFunction(...args: ParameterDecoratorArgs): DecoratorFunction;
-export function IsFunction(errorFunction: ErrorFunction): DecoratorFunction;
+export function IsFunction(): any;
+export function IsFunction(errorFunction: ErrorFunction): any;
 
-export function IsFunction(...args: DecoratorFactoryArgs): DecoratorFunction {
-  return decoratorFactory.call({expectedType: Types.Function}, ...args);
+export function IsFunction(...args: OrdinaryValidatorArgs): DecoratorFunction {
+  return decoratorFactory(PrimitiveType.Function, PrimitiveType.Function, ...args);
 }

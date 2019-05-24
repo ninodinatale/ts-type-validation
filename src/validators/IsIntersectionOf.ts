@@ -1,4 +1,4 @@
-// import { PropertyDecoratorFunction, ErrorFunction, ValidatedType } from './core/types';
+// import { PropertyDecoratorFunction, ErrorFunction, ExpectedType } from './core/types';
 // import { installValidatorForProperty, ordinaryIsValidFn } from './core';
 //
 // /**

@@ -58,7 +58,7 @@ describe('@IsSymbol', () => {
 class TestClass {}
 
 class HelperClass {
-  @IsSymbol
+  @IsSymbol()
   symbol: symbol;
   @IsSymbol(() => console.error(CUSTOM_ERROR))
   symbolWithCustomErrorFn: symbol;

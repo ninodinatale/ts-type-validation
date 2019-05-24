@@ -13,14 +13,18 @@ export type OrdinaryDecoratorFactoryArgs = PropertyDecoratorArgs | ParameterDeco
 
 export type DecoratorFactoryArgs = [] | [ErrorFunction] | PropertyDecoratorArgs | ParameterDecoratorArgs // TODO rename
 
+export type OrdinaryValidatorArgs = [] | [ErrorFunction];
+export type AdvancedValidatorArgs = [ExpectedType] | [ExpectedType, ErrorFunction];
+
+
 
 export interface DecoratorFactoryThisContext {
-  expectedType: ValidatedType,
+  expectedType: ExpectedType,
   isValidFn?: ValidationFunction
 }
 
 export interface OrdinaryDecoratorFactoryThisContext {
-  expectedType: ValidatedType,
+  expectedType: ExpectedType,
   errorFn: ErrorFunction,
   isValidFn: ValidationFunction
 }
@@ -30,19 +34,27 @@ export type ValidationDecoratorArgs = [ErrorFunction] | PropertyDecoratorArgs | 
 
 export type ReducedPropertyDecoratorArgs = [string]
 export type ReducedParameterDecoratorArgs = [string, number]
-export type ValidatorArgs = ReducedPropertyDecoratorArgs | ReducedParameterDecoratorArgs
-// export type DecoratorFactoryArgs = CompleteDecoratorFactoryArgs | ValidatorArgs
+// export type DecoratorFactoryArgs = CompleteDecoratorFactoryArgs | OrdinaryValidatorArgs
 
 export type PropertyDecoratorFunction = (target: DecoratorTarget, key: string) => void;
 export type ParameterDecoratorFunction = (target: DecoratorTarget, key: string, index: number) => void;
-// export type ValidatedType = 'string' | 'number' | 'object' | 'symbol' | 'function' | Object;
-export type ComposedType = { union: ValidatedType[], tuple: ValidatedType[], intersection: ValidatedType[], enum: any };
-export type DecoratorFunction = any | void; // TODO does not work without any smh.
-export type ValidationFunction = (expectedValue: ValidatedType) => boolean
+// export type ExpectedType = 'string' | 'number' | 'object' | 'symbol' | 'function' | Object;
+export type ComposedType = { union: ExpectedType[], tuple: ExpectedType[], intersection: ExpectedType[], enum: any };
+export type DecoratorFunction = PropertyDecoratorFunction | ParameterDecoratorFunction
+export type ValidationFunction = (value: any, expectedType: ExpectedType) => boolean
 
-export type ValidatedType = Types | Object
+export enum HighOrderType {
+  Object,
+  Enum,
+  Literal,
+  Tuple,
+  Union
+}
 
-export enum Types {
+export type ExpectedType = PrimitiveType | Object
+export type ValidationType = PrimitiveType | HighOrderType
+
+export enum PrimitiveType {
   String = 'string',
   Number = 'number',
   Boolean = 'boolean',

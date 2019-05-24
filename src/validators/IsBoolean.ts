@@ -1,15 +1,12 @@
 import {
   DecoratorFunction,
-  ErrorFunction,
-  ParameterDecoratorArgs, PropertyDecoratorArgs,
-  DecoratorFactoryArgs, Types
+  ErrorFunction, OrdinaryDecoratorFactoryArgs, PrimitiveType, OrdinaryValidatorArgs
 } from './core/types';
 import { decoratorFactory } from './core';
 
-export function IsBoolean(...args: PropertyDecoratorArgs): DecoratorFunction;
-export function IsBoolean(...args: ParameterDecoratorArgs): DecoratorFunction;
-export function IsBoolean(errorFunction: ErrorFunction): DecoratorFunction;
+export function IsBoolean(): any;
+export function IsBoolean(errorFunction: ErrorFunction): any;
 
-export function IsBoolean(...args: DecoratorFactoryArgs): DecoratorFunction {
-  return decoratorFactory.call({expectedType: Types.Boolean}, ...args);
+export function IsBoolean(...args: OrdinaryValidatorArgs): DecoratorFunction {
+  return decoratorFactory(PrimitiveType.Boolean, PrimitiveType.Boolean, ...args);
 }

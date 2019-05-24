@@ -1,14 +1,14 @@
-import {
-  DecoratorFactoryArgs,
-  DecoratorFunction,
-} from './core/types';
 import { decoratorFactory } from './core';
+import { AdvancedValidatorArgs, DecoratorFunction, ErrorFunction, ExpectedType, HighOrderType } from './core/types';
 
-export function IsEnumOf<Enum>(_enum: Enum, ...args: DecoratorFactoryArgs): DecoratorFunction {
-  return decoratorFactory.call({expectedType: _enum, isValidFn: (value: any) => _isValidEnum(value, _enum)}, ...args);
+export function IsEnumOf(enumType: ExpectedType): any;
+export function IsEnumOf(enumType: ExpectedType, errorFunction: ErrorFunction): any;
+
+export function IsEnumOf(...args: AdvancedValidatorArgs): DecoratorFunction {
+  return decoratorFactory(HighOrderType.Enum, args[0], args[1], _isValidEnum);
 }
 
-function _isValidEnum<Enum>(value: any, _enum: Enum): boolean {
+function _isValidEnum<T extends ExpectedType>(value: any, _enum: T): boolean {
   // number based (default)
   if (value in _enum) {
     return true;

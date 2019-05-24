@@ -61,7 +61,7 @@ describe('@IsString', () => {
 class TestClass {}
 
 class HelperClass {
-  @IsString
+  @IsString()
   string: string;
 
   @IsString(() => console.error(CUSTOM_ERROR))

@@ -64,7 +64,7 @@ class TestClass {
 }
 
 class HelperClass {
-  @IsNumber
+  @IsNumber()
   number: number;
 
   @IsNumber(() => console.error(CUSTOM_ERROR))

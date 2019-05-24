@@ -61,7 +61,7 @@ describe('@IsFunction', () => {
 class TestClass {}
 
 class HelperClass {
-  @IsFunction
+  @IsFunction()
   function: Function;
   @IsFunction(() => console.error(CUSTOM_ERROR))
   functionWithCustomErrorFn: Function;
