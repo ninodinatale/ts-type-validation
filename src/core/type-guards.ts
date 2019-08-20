@@ -1,23 +1,11 @@
 import {
   ExpectedType,
-  ExtendedDecoratorFactoryArgs, HighOrderType,
+  HighOrderType, MethodDecoratorArgs,
   OrdinaryDecoratorFactoryArgs,
   ParameterDecoratorArgs,
   PrimitiveType,
   PropertyDecoratorArgs, ValidationType
 } from './types';
-
-export function IsEmptyDevoratorFactoryArgs(args: any[]): args is [] {
-  return args.length == 0;
-}
-
-export function isExtendedDecoratorFactoryArgs(args: any[]): args is ExtendedDecoratorFactoryArgs {
-  return args.length == 0 || typeof args[0] === PrimitiveType.Function;
-}
-
-export function isDecoratorFactoryArgs(args: any[]): args is OrdinaryDecoratorFactoryArgs {
-  return typeof args[0] === PrimitiveType.Object;
-}
 
 export function isValidExpectedType(validationType: ValidationType, expectedType?: ExpectedType): expectedType is ExpectedType {
   if (!expectedType) {
@@ -56,14 +44,15 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   return false;
 }
 
-export function isParameterDecorator(args: OrdinaryDecoratorFactoryArgs): args is ParameterDecoratorArgs {
+export function isParameterDecoratorArgs<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is ParameterDecoratorArgs {
   return args.length === 3 && typeof args[2] === PrimitiveType.Number;
 }
 
-export function isPropertyDecorator(args: OrdinaryDecoratorFactoryArgs): args is PropertyDecoratorArgs {
-  return args.length === 2;
+// TODO why any in args: any
+export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> {
+  return args.length === 3 && typeof args[2] !== PrimitiveType.Number;
 }
 
-function _isFunctionConstructor(expectedType?: any): expectedType is FunctionConstructor {
-  return expectedType && expectedType.prototype && expectedType.prototype.constructor.name;
+export function isPropertyDecorator<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {
+  return args.length === 2;
 }

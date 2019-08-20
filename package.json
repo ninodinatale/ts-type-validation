@@ -1,10 +1,11 @@
 {
   "name": "typesafety",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Decorators to enhance type safety.",
   "main": "index.ts",
   "scripts": {
     "dev": "tsc -w",
+    "build": "tsc",
     "test": "node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register"
   },
   "keywords": [

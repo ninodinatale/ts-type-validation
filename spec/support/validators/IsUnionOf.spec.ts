@@ -1,112 +1,146 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsUnionOf } from '../../../src/validators/IsUnionOf';
-
-describe('@IsUnionOf', () => {
-  let helperClass: HelperClass;
-
-  beforeAll(() => {
-    helperClass = new HelperClass();
-  });
-
-  describe('any type', () => {
-    describe('should not throw an error if assigning', () => {
-      it('null', () => {
-        TYPES['null'].forEach(value => expect(() => helperClass.stringOrBoolean = value as any).not.toThrowError());
-      });
-      it('undefined', () => {
-        TYPES['undefined'].forEach(value => expect(() => helperClass.stringOrBoolean = value as any).not.toThrowError());
-      });
-    });
-  });
-
-  describe('string or boolean', () => {
-    describe('should not throw an error if assigning', () => {
-      it('string', () => {
-        TYPES.string.forEach(value => expect(() => helperClass.stringOrBoolean = value).not.toThrowError());
-      });
-      it('boolean', () => {
-        TYPES.boolean.forEach(value => expect(() => helperClass.stringOrBoolean = value).not.toThrowError());
-      });
-    });
-
-    describe('should throw an error if assigning', () => {
-      it('primitive object', () => {
-        TYPES.primitiveObject.forEach(value => expect(() => helperClass.stringOrBoolean = value as any).toThrowError());
-      });
-      it('primitive number', () => {
-        TYPES.number.forEach(value => expect(() => helperClass.stringOrBoolean = value as any).toThrowError());
-      });
-      it('primitive symbol', () => {
-        TYPES.symbol.forEach(value => expect(() => helperClass.stringOrBoolean = value as any).toThrowError());
-      });
-      it('function', () => {
-        TYPES.function.forEach(value => expect(() => helperClass.stringOrBoolean = value as any).toThrowError());
-      });
-      it('TestClass1', () => {
-        expect(() => helperClass.stringOrBoolean = new TestClass1() as any).toThrowError();
-      });
-    });
-  });
-
-  describe('TestClass1 or string', () => {
-    describe('should not throw an error if assigning', () => {
-      it('string', () => {
-        TYPES.string.forEach(value => expect(() => helperClass.testClass1OrString = value).not.toThrowError());
-      });
-      it('TestClass1', () => {
-        expect(() => helperClass.testClass1OrString = new TestClass1() as any).not.toThrowError();
-      });
-    });
-
-    describe('should throw an error if assigning', () => {
-      it('boolean', () => {
-        TYPES.boolean.forEach(value => expect(() => helperClass.testClass1OrString = value).toThrowError());
-      });
-      it('Object', () => {
-        TYPES.object.forEach(value => expect(() => helperClass.testClass1OrString = value).toThrowError());
-      });
-      it('primitive object', () => {
-        TYPES.primitiveObject.forEach(value => expect(() => helperClass.testClass1OrString = value as any).toThrowError());
-      });
-      it('primitive number', () => {
-        TYPES.number.forEach(value => expect(() => helperClass.testClass1OrString = value as any).toThrowError());
-      });
-      it('primitive symbol', () => {
-        TYPES.symbol.forEach(value => expect(() => helperClass.testClass1OrString = value as any).toThrowError());
-      });
-      it('function', () => {
-        TYPES.function.forEach(value => expect(() => helperClass.testClass1OrString = value as any).toThrowError());
-      });
-    });
-  });
-
-  it('should execute passed error function', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    Object.entries(TYPES)
-        .filter(type => type[0] !== 'string' && type[0] !== 'boolean')
-        .forEach(type => {
-          type[1].forEach((value: any) => {
-            helperClass.stringOrBooleanWithErrorFn = value;
-            expect(consoleErrorSpy).toHaveBeenCalledWith(CUSTOM_ERROR);
-          });
-        });
-  });
-});
-
-class TestClass1 {
-}
-
-class TestClass2 {
-}
-
-class HelperClass {
-  @IsUnionOf(['string', 'boolean'])
-  stringOrBoolean: string | boolean;
-
-  @IsUnionOf([TestClass1, 'string'])
-  testClass1OrString: TestClass1 | string;
-
-  @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
-  stringOrBooleanWithErrorFn: string | boolean;
-}
-
+// import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator, TYPES, TypesForTest } from './helpers/test-helper';
+// import { IsTupleOf, IsUnionOf } from '../../../src/validators';
+// import { ValidateParams } from '../../../src/validators/ValidateParams';
+//
+// class TestClass {
+// }
+//
+// class PropertyDecoratorHelperClass {
+//   @IsUnionOf(['string', 'boolean'])
+//   stringOrBoolean: string | boolean;
+//
+//   @IsUnionOf([TestClass, 'string'])
+//   testClass1OrString: TestClass | string;
+//
+//   @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
+//   stringOrBooleanWithErrorFn: string | boolean;
+// }
+//
+//
+// class ParameterDecoratorHelperClass {
+//   stringOrBoolean: string | boolean;
+//   testClass1OrString: TestClass | string;
+//   stringOrBooleanWithErrorFn: string | boolean;
+//
+//   @ValidateParams()
+//   testMethod(@IsTupleOf(['string', 'boolean']) stringOrBoolean: any,
+//              @IsTupleOf([TestClass, 'string']) testClass1OrString: any,
+//              @IsTupleOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR)) stringOrBooleanWithErrorFn?: any): any {
+//     this.stringOrBoolean = stringOrBoolean;
+//     this.testClass1OrString = testClass1OrString;
+//     this.stringOrBooleanWithErrorFn = stringOrBooleanWithErrorFn;
+//   }
+// }
+//
+// const TYPE_UNDER_TEST: keyof TypesForTest = 'union';
+// const CUSTOM_PROP_KEY_UNION1 = 'stringOrBoolean';
+// const CUSTOM_PROP_KEY_UNION2 = 'testClass1OrString';
+// const CUSTOM_PROP_KEY_ERROR_FN = 'stringOrBooleanWithErrorFn';
+// const METHOD_NAME = 'testMethod';
+//
+//
+// describe('@IsUnionOf', () => {
+//   describe('as property decorator', () => {
+//     let helperClass: PropertyDecoratorHelperClass;
+//
+//     beforeAll(() => {
+//       helperClass = new PropertyDecoratorHelperClass();
+//     });
+//
+//     describe('string or boolean', () => {
+//       describe('should not throw an error if assigning', () => {
+//         it('string', () => {
+//           TYPES.string.forEach(value => expect(() => helperClass.stringOrBoolean = value).not.toThrowError());
+//         });
+//         it('boolean', () => {
+//           TYPES.boolean.forEach(value => expect(() => helperClass.stringOrBoolean = value).not.toThrowError());
+//         });
+//       });
+//
+//       describe('should throw an error if assigning', () => {
+//         PropertyDecorator.shouldThrowError(PropertyDecoratorHelperClass, TYPE_UNDER_TEST, {
+//           customPropertyKey: CUSTOM_PROP_KEY_UNION1,
+//           additionalCustomValues: [
+//             new TestClass()
+//           ],
+//           excludeTypes: ['string', 'boolean', 'null', 'undefined']
+//         });
+//       });
+//     });
+//
+//     describe('TestClass or string', () => {
+//       describe('should not throw an error if assigning', () => {
+//         it('string', () => {
+//           TYPES.string.forEach(value => expect(() => helperClass.testClass1OrString = value).not.toThrowError());
+//         });
+//         it('TestClass', () => {
+//           expect(() => helperClass.testClass1OrString = new TestClass() as any).not.toThrowError();
+//         });
+//       });
+//
+//       // TODO this should fail for string... ?
+//       PropertyDecorator.shouldThrowError(PropertyDecoratorHelperClass, TYPE_UNDER_TEST, {
+//         customPropertyKey: CUSTOM_PROP_KEY_UNION2,
+//         excludeTypes: ['string']
+//       });
+//     });
+//   });
+//
+//   PropertyDecorator.shouldExecutePassedErrorFunction(PropertyDecoratorHelperClass, TYPE_UNDER_TEST, {
+//     additionalCustomValues: [new TestClass()],
+//     customPropertyKey: CUSTOM_PROP_KEY_ERROR_FN
+//   });
+//
+//   describe('as parameter decorator', () => {
+//     let helperClass: ParameterDecoratorHelperClass;
+//
+//     beforeAll(() => {
+//       helperClass = new ParameterDecoratorHelperClass();
+//     });
+//
+//     describe('string or boolean', () => {
+//       describe('should not throw an error if assigning', () => {
+//         it('string', () => {
+//           TYPES.string.forEach(value => expect(() => helperClass.testMethod(value, null, null)).not.toThrowError());
+//         });
+//         it('boolean', () => {
+//           TYPES.boolean.forEach(value => expect(() => helperClass.testMethod(value, null, null)).not.toThrowError());
+//         });
+//       });
+//
+//       describe('should throw an error if assigning', () => {
+//         // TODO this should fail for string and boolean... ?
+//         ParameterDecorator.shouldThrowError(ParameterDecoratorHelperClass, TYPE_UNDER_TEST, METHOD_NAME, 0, {
+//           customPropertyKey: CUSTOM_PROP_KEY_UNION1,
+//           additionalCustomValues: [
+//             new TestClass()
+//           ],
+//           excludeTypes: ['string', 'boolean']
+//         });
+//       });
+//     });
+//
+//     describe('TestClass or string', () => {
+//       describe('should not throw an error if assigning', () => {
+//         it('string', () => {
+//           TYPES.string.forEach(value => expect(() => helperClass.testMethod(null, value, null)).not.toThrowError());
+//         });
+//         it('TestClass', () => {
+//           expect(() => helperClass.testMethod(null, new TestClass(), null)).not.toThrowError();
+//         });
+//       });
+//
+//       // TODO this should fail for string... ?
+//       ParameterDecorator.shouldThrowError(ParameterDecoratorHelperClass, TYPE_UNDER_TEST, METHOD_NAME, 1, {
+//         customPropertyKey: CUSTOM_PROP_KEY_UNION2,
+//         excludeTypes: ['string']
+//       });
+//     });
+//   });
+//
+//   ParameterDecorator.shouldExecutePassedErrorFunction(ParameterDecoratorHelperClass, TYPE_UNDER_TEST, METHOD_NAME, 2, {
+//     additionalCustomValues: [new TestClass()],
+//     customPropertyKey: CUSTOM_PROP_KEY_ERROR_FN
+//   });
+// });
+//

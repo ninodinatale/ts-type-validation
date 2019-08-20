@@ -1,66 +1,60 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsSymbol } from '../../../src/validators';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsSymbol, ValidateParams } from '../../../src';
 
-describe('@IsSymbol', () => {
-  let helperClass: HelperClass;
+class TestClass {
+}
 
-  beforeAll(() => {
-    helperClass = new HelperClass();
-  });
-
-  describe('should not throw an error if assigning', () => {
-    it('symbol', () => {
-      TYPES.symbol.forEach(value => expect(() => helperClass.symbol = value).not.toThrowError());
-    });
-    it('null', () => {
-      TYPES['null'].forEach(value => expect(() => helperClass.symbol = value as any).not.toThrowError());
-    });
-    it('undefined', () => {
-      TYPES['undefined'].forEach(value => expect(() => helperClass.symbol = value as any).not.toThrowError());
-    });
-  });
-
-  describe('should throw an error if assigning', () => {
-    it('primitive object', () => {
-      TYPES.primitiveObject.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('object', () => {
-      TYPES.object.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('primitive number', () => {
-      TYPES.number.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('primitive boolean', () => {
-      TYPES.boolean.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('primitive string', () => {
-      TYPES.string.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('function', () => {
-      TYPES.function.forEach(value => expect(() => helperClass.symbol = value as any).toThrowError());
-    });
-    it('TestClass', () => {
-      expect(() => helperClass.symbol = new TestClass() as any).toThrowError();
-    });
-  });
-
-  it('should execute passed error function', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    Object.entries(TYPES).filter(type => type[0] !== 'symbol').forEach(type => {
-      type[1].forEach((value: any) => {
-        helperClass.symbolWithCustomErrorFn = value;
-        expect(consoleErrorSpy).toHaveBeenCalledWith(CUSTOM_ERROR);
-      });
-    });
-  });
-});
-
-class TestClass {}
-
-class HelperClass {
+class PropertyDecoratorHelperClass {
   @IsSymbol()
   symbol: symbol;
+
   @IsSymbol(() => console.error(CUSTOM_ERROR))
   symbolWithCustomErrorFn: symbol;
 }
 
+class ParameterDecoratorHelperClass {
+  symbol: symbol;
+  symbolWithCustomErrorFn: symbol;
+
+  @ValidateParams()
+  testMethod(@IsSymbol() arg1: any,
+             @IsSymbol(() => console.error(CUSTOM_ERROR)) arg2?: any): any {
+    this.symbol = arg1;
+    this.symbolWithCustomErrorFn = arg2;
+  }
+}
+
+const PROPERTY_TYPE = 'symbol';
+const PROPERTY_KEY = PROPERTY_TYPE;
+const CUSTOM_PROP_KEY = 'symbolWithCustomErrorFn';
+const METHOD_NAME = 'testMethod';
+
+describe('@IsSymbol', () => {
+  PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY);
+
+  PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY,
+      [new TestClass()]);
+
+  PropertyDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      CUSTOM_PROP_KEY,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0);
+
+  ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      CUSTOM_PROP_KEY, METHOD_NAME, 1,
+      [new TestClass()]);
+});

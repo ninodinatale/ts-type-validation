@@ -32,7 +32,7 @@
 //
 //     describe('should throw an error if assigning', () => {
 //       it('TestClass1', () => {
-//         expect(() => helperClass.testClass1AndTestClass2 = new TestClass1() as any).toThrowError();
+//         expect(() => helperClass.testClass1AndTestClass2 = new TestClass1() as any).toThrowError('Invalid type!');
 //       });
 //     });
 //   });
