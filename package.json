@@ -1,5 +1,5 @@
 {
-  "name": "typesafety",
+  "name": "@ndinatale/typesafety",
   "version": "0.1.0",
   "description": "Decorators to enhance type safety.",
   "main": "index.ts",
@@ -32,5 +32,13 @@
   },
   "dependencies": {
     "reflect-metadata": "^0.1.13"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ninodinatale/ts-typevalidation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ninodinatale/ts-typevalidation/issues"
+  },
+  "homepage": "https://github.com/ninodinatale/ts-typevalidation#readme"
 }
