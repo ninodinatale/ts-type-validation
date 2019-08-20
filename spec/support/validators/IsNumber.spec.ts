@@ -1,5 +1,5 @@
 import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
-import { IsNumber, ValidateParams } from '../../../src';
+import { IsNumber, ValidateParams } from '../../../index';
 
 class TestClass {
 }
