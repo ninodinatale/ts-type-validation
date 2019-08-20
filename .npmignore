@@ -1,5 +1,9 @@
 .idea/
-dist/
 node_modules/
+spec/
+src/
+.gitignore
+tsconfig.json
+tslint.json
 typesafety.iml
-**.js
+**.ts
