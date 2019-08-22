@@ -26,8 +26,7 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
     if (Object.values(HigherOrderType).includes(validationType)) {
       switch (validationType) {
         case HigherOrderType.Enum:
-          // TODO: This assertion is used for enums. Improve assertion to remove __proto__ access.
-          // @ts-ignore
+          // @ts-ignore TODO: This assertion is used for enums. Improve assertion to remove __proto__ access.
           return expectedType.__proto__.constructor.name === 'Object';
         case HigherOrderType.Union:
         case HigherOrderType.Tuple:
@@ -40,7 +39,7 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
           if (typeof expectedType === 'function') {
             return expectedType.hasOwnProperty('prototype') &&
                 // exclude anonymous function constructors
-                // @ts-ignore: we know there is a property prototype
+                // @ts-ignore: we know there is a property prototype TODO
                 !!expectedType.prototype.constructor.name;
 
           } else {
