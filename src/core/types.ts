@@ -44,11 +44,4 @@ export enum HighOrderType {
 export type ExpectedType = PrimitiveType | Object
 export type ValidationType = PrimitiveType | HighOrderType
 
-export enum PrimitiveType {
-  String = 'string',
-  Number = 'number',
-  Boolean = 'boolean',
-  Object = 'object',
-  Symbol = 'symbol',
-  Function = 'function'
-}
+export type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'symbol' | 'function';

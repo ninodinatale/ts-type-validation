@@ -1,17 +1,26 @@
 import {
   ExpectedType,
-  HighOrderType, MethodDecoratorArgs,
+  HighOrderType,
+  MethodDecoratorArgs,
   OrdinaryDecoratorFactoryArgs,
   ParameterDecoratorArgs,
-  PrimitiveType,
-  PropertyDecoratorArgs, ValidationType
+  PropertyDecoratorArgs,
+  ValidationType
 } from './types';
 
 export function isValidExpectedType(validationType: ValidationType, expectedType?: ExpectedType): expectedType is ExpectedType {
   if (!expectedType) {
     return false;
   }
-  if (Object.values(PrimitiveType).includes(validationType)) {
+
+  let enumValues: Array<HighOrderType> = [];
+  for(let value in HighOrderType) {
+    if(typeof HighOrderType[value] === 'number') {
+      enumValues.push(value as unknown as HighOrderType);
+    }
+  }
+
+  if (Object.values(['string', 'number', 'boolean', 'object', 'symbol', 'function', ...enumValues]).includes(validationType)) {
     return validationType === expectedType;
   } else {
     if (Object.values(HighOrderType).includes(validationType)) {
@@ -25,19 +34,20 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
           return Array.isArray(expectedType);
         case HighOrderType.Literal:
           return Array.isArray(expectedType) && !expectedType.some(literal => {
-            return typeof literal !== PrimitiveType.String && typeof literal !== PrimitiveType.Number;
+            return typeof literal !== 'string' && typeof literal !== 'number';
           });
         case HighOrderType.Object:
-          if (typeof expectedType === PrimitiveType.Function) {
+          if (typeof expectedType === 'function') {
             return expectedType.hasOwnProperty('prototype') &&
-              // exclude anonymous function constructors
-              // @ts-ignore: we know there is a property prototype
-              !!expectedType.prototype.constructor.name;
+                // exclude anonymous function constructors
+                // @ts-ignore: we know there is a property prototype
+                !!expectedType.prototype.constructor.name;
 
           } else {
             return false;
           }
-        default: return false;
+        default:
+          return false;
       }
     }
   }
@@ -45,12 +55,12 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
 }
 
 export function isParameterDecoratorArgs<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is ParameterDecoratorArgs {
-  return args.length === 3 && typeof args[2] === PrimitiveType.Number;
+  return args.length === 3 && typeof args[2] === 'number';
 }
 
 // TODO why any in args: any
 export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> {
-  return args.length === 3 && typeof args[2] !== PrimitiveType.Number;
+  return args.length === 3 && typeof args[2] !== 'number';
 }
 
 export function isPropertyDecorator<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {

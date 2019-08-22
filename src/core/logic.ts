@@ -6,7 +6,7 @@ import {
   ExpectedType,
   OrdinaryDecoratorFactoryArgs,
   OrdinaryDecoratorFactoryThisContext,
-  PrimitiveType, Target,
+  Target,
   ValidationFunction,
   ValidationType
 } from './types';
@@ -51,7 +51,7 @@ function _installValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext
 }
 
 export function installValidatorForMethod<T extends Function>(target: Target, propertyName: string | symbol, descriptor: TypedPropertyDescriptor<any>): void {
-  if (typeof descriptor.value === PrimitiveType.Function) {
+  if (typeof descriptor.value === 'function') {
     let method = descriptor.value;
     descriptor.value = function () {
       let isValid = true;
