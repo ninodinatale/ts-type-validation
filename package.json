@@ -1,7 +1,7 @@
 {
-  "name": "@ndinatale/typesafety",
-  "version": "0.2.0",
-  "description": "Decorators to enhance type safety.",
+  "name": "@ndinatale/ts-type-validation",
+  "version": "0.2.2",
+  "description": "Use TypeScript decorators to validate types like all primitives, enums, objects, literals, unions, tuples, intersections etc.",
   "main": "index",
   "scripts": {
     "dev": "tsc -w",
@@ -22,7 +22,7 @@
     "ts"
   ],
   "author": "Nino Di Natale",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/jasmine": "^3.3.12",
     "jasmine": "^3.4.0",
