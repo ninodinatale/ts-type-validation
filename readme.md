@@ -1,4 +1,4 @@
-# Repository Title Goes Here
+# Type validation with TypeScript's decorators 
 
 Use TypeScript's decorators to validate the type of 
 - the assigned value of class properties
