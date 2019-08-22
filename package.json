@@ -1,6 +1,6 @@
 {
   "name": "@ndinatale/typesafety",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Decorators to enhance type safety.",
   "main": "index",
   "scripts": {
