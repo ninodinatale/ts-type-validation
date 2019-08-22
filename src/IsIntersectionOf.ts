@@ -2,14 +2,12 @@
 // import { installValidatorForProperty, ordinaryIsValidFn } from './core';
 //
 // /**
+//  * // TODO
 //  * It cannot be checked if a value is an intersection of `n` objects since it is only possible to get the
 //  * properties of the `intersectionTypes` which are defined. Possible workaround would be to define all
 //  * properties of the intersectionTypes as `undefined` or any other value. Then it would be possible to
 //  * instantiate the intersection type and iterate over the keys with `Object.keys()`. Nonetheless it is much
 //  * cleaner to just create a wrapper object with properties with type of the intersection types.
-//  *
-//  * @param intersectionTypes The object constructor of the desired types.
-//  * @param errorFn The function which is being executed on invalid assignments.
 //  */
 // export function IsIntersectionOf(intersectionTypes: Object[], errorFn?: ErrorFunction): PropertyDecoratorFunction {
 //   return (target: any, key: string) => {

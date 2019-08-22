@@ -62,7 +62,7 @@ export function installValidatorForMethod<T>(target: Object, propertyName: strin
           const {expectedType, errorFn, isValidFn, parameterIndex} = validatedParameter;
           // TODO #1 export this to function
           if (arguments[parameterIndex] != null && !isValidFn(arguments[parameterIndex], expectedType)) {
-            _callErrorFn(target, propertyName.toString(), expectedType, arguments[parameterIndex], errorFn);
+            _callErrorFn(target, typeof propertyName === 'symbol' ? propertyName.toString() : propertyName, expectedType, arguments[parameterIndex], errorFn);
             isValid = false;
           }
         }
@@ -118,10 +118,10 @@ export function ordinaryIsValidFn(value: any, expectedType: ExpectedType): boole
   return true;
 }
 
-function _callErrorFn(target: any, key: string, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
+function _callErrorFn<T>(target: T, propertyKey: string, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
   if (errorCb) {
     errorCb(value);
   } else {
-    throwTypeErrorFor();
+    throwTypeErrorFor(target, propertyKey, expectedType, value);
   }
 }
