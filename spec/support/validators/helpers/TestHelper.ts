@@ -1,5 +1,3 @@
-import { TYPE_ERROR_MESSASGE } from '../../../../src/core/errors';
-
 export namespace PropertyDecorator {
 
   export function shouldNotThrowError<T extends Object>(typesOfProperty: (keyof TypesForTest)[],
@@ -152,7 +150,7 @@ function _getShouldThrowExpectFn<T extends Object, K extends keyof T>(
     helperClass: new() => T) {
   return function (value: any) {
     const helperInstance = new helperClass();
-    expect(() => callbackUnderExpectation(value, helperInstance)).toThrowError(TYPE_ERROR_MESSASGE);
+    expect(() => callbackUnderExpectation(value, helperInstance)).toThrowError(TypeError, /^Invalid assignment to property/);
     _expectValuesToBeNull(helperInstance, propertyKey);
   };
 }
@@ -198,7 +196,7 @@ interface TypesForTest {
 }
 
 // These are all existing types. Everything which is not a primitive falls under the Object type.
-const TYPES: {[key in keyof TypesForTest]: any[]} = {
+const TYPES: { [key in keyof TypesForTest]: any[] } = {
   object: [
     {},
     Object(),
@@ -236,7 +234,7 @@ const TYPES: {[key in keyof TypesForTest]: any[]} = {
     ``,
     `test`,
     String(''),
-    String('test'),
+    String('test')
   ],
   'function': [
     () => {
@@ -244,9 +242,9 @@ const TYPES: {[key in keyof TypesForTest]: any[]} = {
     function () {
     }],
   'null': [
-      null
+    null
   ],
   'undefined': [
-      undefined
+    undefined
   ]
 };

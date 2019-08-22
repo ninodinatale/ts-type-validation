@@ -1,6 +1,6 @@
-import { OrdinaryDecoratorFactoryArgs } from './types';
+import { DecoratorFactoryArgs } from './types';
 
-export function removeTrailingUndefined<T>(args: OrdinaryDecoratorFactoryArgs<T>) {
+export function removeTrailingUndefined<T>(args: DecoratorFactoryArgs<T>) {
   args.reverse();
   while (args.length && args[0] === undefined) {
     args.shift();

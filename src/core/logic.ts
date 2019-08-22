@@ -4,7 +4,7 @@ import {
   DecoratorFactory,
   ErrorFunction,
   ExpectedType,
-  OrdinaryDecoratorFactoryArgs,
+  DecoratorFactoryArgs,
   OrdinaryDecoratorFactoryThisContext,
   Target,
   ValidationFunction,
@@ -18,7 +18,7 @@ export function decoratorFactory(validationType: ValidationType, expectedType?: 
     return _ordinaryDecoratorFactory.bind({
       validationType,
       expectedType,
-      errorFn: errorFn ? errorFn : throwTypeErrorFor,
+      errorFn,
       isValidFn: isValidFn ? isValidFn : getOrdinaryIsValidFn(expectedType)
     });
   } else {
@@ -26,7 +26,7 @@ export function decoratorFactory(validationType: ValidationType, expectedType?: 
   }
 }
 
-function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext, ...args: OrdinaryDecoratorFactoryArgs<T>): void {
+function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext, ...args: DecoratorFactoryArgs<T>): void {
   removeTrailingUndefined(args); // TODO why are there trailing undefineds itfp
   if (isParameterDecoratorArgs(args)) {
     const [target, propertyKey, argumentIndex] = args;
@@ -58,10 +58,10 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
       let validatedParameters: (OrdinaryDecoratorFactoryThisContext & { parameterIndex: number })[] = Reflect.getOwnMetadata(validateMetadataKey, target, propertyName);
       if (validatedParameters) {
         for (let validatedParameter of validatedParameters) {
-          const {expectedType, errorFn, isValidFn, parameterIndex} = validatedParameter;
+          const {validationType, expectedType, errorFn, isValidFn, parameterIndex} = validatedParameter;
           // TODO #1 export this to function
           if (arguments[parameterIndex] != null && !isValidFn(arguments[parameterIndex], expectedType)) {
-            _callErrorFn(target, typeof propertyName === 'symbol' ? propertyName.toString() : propertyName, expectedType, arguments[parameterIndex], errorFn);
+            _callErrorFn(target, typeof propertyName === 'symbol' ? propertyName.toString() : propertyName, validationType, expectedType, arguments[parameterIndex], errorFn);
             isValid = false;
           }
         }
@@ -79,7 +79,7 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
 }
 
 export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisContext, target: Target, propertyKey: string | symbol): void {
-  const sym = Symbol() as any;
+  const sym = Symbol(typeof propertyKey === 'string' ? propertyKey : propertyKey.toString()) as any;
   Object.defineProperty(target, propertyKey, {
     get: () => {
       return target[sym];
@@ -89,7 +89,7 @@ export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisCo
       if (value == null || this.isValidFn(value, this.expectedType)) {
         target[sym] = value;
       } else {
-        _callErrorFn(target, propertyKey, this.expectedType, value, this.errorFn);
+        _callErrorFn(target, propertyKey, this.validationType, this.expectedType, value, this.errorFn);
       }
     }
   });
@@ -113,10 +113,10 @@ export function ordinaryIsValidFn(value: any, expectedType: ExpectedType): boole
   return true;
 }
 
-function _callErrorFn<T>(target: Target, propertyKey: string | symbol, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
+function _callErrorFn<T>(target: Target, propertyKey: string | symbol, validationType: ValidationType, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
   if (errorCb) {
     errorCb(value);
   } else {
-    throwTypeErrorFor(target, propertyKey, expectedType, value);
+    throwTypeErrorFor(target, propertyKey, validationType, expectedType, value);
   }
 }

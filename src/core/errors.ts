@@ -1,22 +1,39 @@
-import { ComposedType, ExpectedType } from './types';
+import { ExpectedType, HigherOrderType, ValidationType } from './types';
 
-export const TYPE_ERROR_MESSASGE = 'Invalid type!';
+function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | symbol, validationType: ValidationType, expectedType: ExpectedType, value: any): never {
+  const propKey = typeof propertyKey === 'symbol' ? propertyKey.description : propertyKey;
+  const val = typeof value === 'symbol' ? value.description : value;
+  const expType = typeof expectedType === 'string' ? expectedType : expectedType.toString();
 
-function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | symbol, expectedType: ExpectedType, value: any): never {
-  throw new TypeError(TYPE_ERROR_MESSASGE);
-  // TODO uncomment and test
-  // throw new TypeError(`Invalid assignment to property ${propertyKey} of object ${target.constructor.name}. Expected type ${expectedType} but assigned value was ${value}`);
-}
-
-// TODO reimplement
-function _getExpectedTypeString(expectedType: ExpectedType | ComposedType): string {
-  if ((expectedType as ComposedType).union != null) {
-    let unionTypes = ' ';
-    (expectedType as ComposedType).union.forEach(type => unionTypes += type.toString());
-    return `union of${unionTypes}`;
-  } else {
-    return expectedType.toString();
+  let higherOrderTypeStr: string;
+  switch (validationType) {
+    case HigherOrderType.Literal:
+      higherOrderTypeStr = 'literal of';
+      break;
+    case HigherOrderType.Union:
+      higherOrderTypeStr = 'union of';
+      break;
+    case HigherOrderType.Tuple:
+      higherOrderTypeStr = 'tuple of';
+      break;
+    case HigherOrderType.Enum:
+      higherOrderTypeStr = 'enum of';
+      break;
+    case HigherOrderType.Object:
+      higherOrderTypeStr = 'object of';
+      break;
+    default:
+      higherOrderTypeStr = '';
   }
+
+  let errorMessageExpected: string;
+  if (higherOrderTypeStr.length > 0) {
+    errorMessageExpected = `Expected ${higherOrderTypeStr} ${expType}`;
+  } else {
+    errorMessageExpected = `Expected ${expType}`;
+  }
+
+  throw new TypeError(`Invalid assignment to property ${propKey} of object ${target.constructor.name}. ${errorMessageExpected}, but assigned value was ${val} (${typeof val})`);
 }
 
-export { throwTypeErrorFor }
+export { throwTypeErrorFor };

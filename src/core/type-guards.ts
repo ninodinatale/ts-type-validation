@@ -1,8 +1,8 @@
 import {
   ExpectedType,
-  HighOrderType,
+  HigherOrderType,
   MethodDecoratorArgs,
-  OrdinaryDecoratorFactoryArgs,
+  DecoratorFactoryArgs,
   ParameterDecoratorArgs,
   PropertyDecoratorArgs,
   ValidationType
@@ -13,30 +13,30 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
     return false;
   }
 
-  let enumValues: Array<HighOrderType> = [];
-  for(let value in HighOrderType) {
-    if(typeof HighOrderType[value] === 'number') {
-      enumValues.push(value as unknown as HighOrderType);
+  let enumValues: Array<HigherOrderType> = [];
+  for(let value in HigherOrderType) {
+    if(typeof HigherOrderType[value] === 'number') {
+      enumValues.push(value as unknown as HigherOrderType);
     }
   }
 
   if (Object.values(['string', 'number', 'boolean', 'object', 'symbol', 'function', ...enumValues]).includes(validationType)) {
     return validationType === expectedType;
   } else {
-    if (Object.values(HighOrderType).includes(validationType)) {
+    if (Object.values(HigherOrderType).includes(validationType)) {
       switch (validationType) {
-        case HighOrderType.Enum:
+        case HigherOrderType.Enum:
           // TODO: This assertion is used for enums. Improve assertion to remove __proto__ access.
           // @ts-ignore
           return expectedType.__proto__.constructor.name === 'Object';
-        case HighOrderType.Union:
-        case HighOrderType.Tuple:
+        case HigherOrderType.Union:
+        case HigherOrderType.Tuple:
           return Array.isArray(expectedType);
-        case HighOrderType.Literal:
+        case HigherOrderType.Literal:
           return Array.isArray(expectedType) && !expectedType.some(literal => {
             return typeof literal !== 'string' && typeof literal !== 'number';
           });
-        case HighOrderType.Object:
+        case HigherOrderType.Object:
           if (typeof expectedType === 'function') {
             return expectedType.hasOwnProperty('prototype') &&
                 // exclude anonymous function constructors
@@ -54,7 +54,7 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   return false;
 }
 
-export function isParameterDecoratorArgs<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is ParameterDecoratorArgs {
+export function isParameterDecoratorArgs<T>(args: DecoratorFactoryArgs<T>): args is ParameterDecoratorArgs {
   return args.length === 3 && typeof args[2] === 'number';
 }
 
@@ -63,6 +63,6 @@ export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> 
   return args.length === 3 && typeof args[2] !== 'number';
 }
 
-export function isPropertyDecorator<T>(args: OrdinaryDecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {
+export function isPropertyDecorator<T>(args: DecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {
   return args.length === 2;
 }
