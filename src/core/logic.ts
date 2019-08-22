@@ -6,7 +6,7 @@ import {
   ExpectedType,
   OrdinaryDecoratorFactoryArgs,
   OrdinaryDecoratorFactoryThisContext,
-  PrimitiveType,
+  PrimitiveType, Target,
   ValidationFunction,
   ValidationType
 } from './types';
@@ -26,17 +26,17 @@ export function decoratorFactory(validationType: ValidationType, expectedType?: 
   }
 }
 
-function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext, ...args: OrdinaryDecoratorFactoryArgs<T>): DecoratorFactory {
+function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext, ...args: OrdinaryDecoratorFactoryArgs<T>): void {
   removeTrailingUndefined(args); // TODO why are there trailing undefineds itfp
   if (isParameterDecoratorArgs(args)) {
-    // @ts-ignore
-    return _installValidatorForParameter.apply(this, args);
+    const [target, propertyKey, argumentIndex] = args;
+    _installValidatorForParameter.call(this, target, propertyKey, argumentIndex);
   } else if (isMethodDecorator<Function>(args)) {
-    // @ts-ignore
-    return installValidatorForMethod(...args);
+    const [target, propertyKey, argumentIndex] = args;
+    installValidatorForMethod(target, propertyKey, argumentIndex);
   } else if (isPropertyDecorator(args)) {
-    // @ts-ignore
-    return installValidatorForProperty.apply(this, args);
+    const [target, propertyKey] = args;
+    installValidatorForProperty.call(this, target, propertyKey);
   } else {
     throw new Error('Not a valid decorator');
   }
@@ -44,16 +44,15 @@ function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext,
 
 const validateMetadataKey = Symbol();
 
-function _installValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext, target: Object, propertyKey: string | symbol, parameterIndex: number): void {
+function _installValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext, target: Target, propertyKey: string | symbol, parameterIndex: number): void {
   let validatedParameters: (OrdinaryDecoratorFactoryThisContext & { parameterIndex: number })[] = Reflect.getOwnMetadata(validateMetadataKey, target, propertyKey) || [];
   validatedParameters.push(Object.assign({}, {parameterIndex}, this));
   Reflect.defineMetadata(validateMetadataKey, validatedParameters, target, propertyKey);
 }
 
-export function installValidatorForMethod<T>(target: Object, propertyName: string | symbol, descriptor: TypedPropertyDescriptor<T>): TypedPropertyDescriptor<T> | void {
+export function installValidatorForMethod<T extends Function>(target: Target, propertyName: string | symbol, descriptor: TypedPropertyDescriptor<any>): void {
   if (typeof descriptor.value === PrimitiveType.Function) {
     let method = descriptor.value;
-    // @ts-ignore
     descriptor.value = function () {
       let isValid = true;
       let validatedParameters: (OrdinaryDecoratorFactoryThisContext & { parameterIndex: number })[] = Reflect.getOwnMetadata(validateMetadataKey, target, propertyName);
@@ -69,7 +68,6 @@ export function installValidatorForMethod<T>(target: Object, propertyName: strin
       }
 
       if (isValid && method) {
-        // @ts-ignore
         return method.apply(this, arguments);
       } else {
         return null;
@@ -80,20 +78,17 @@ export function installValidatorForMethod<T>(target: Object, propertyName: strin
   }
 }
 
-export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisContext, target: Object, propertyKey: string): void {
-  const sym = Symbol();
+export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisContext, target: Target, propertyKey: string | symbol): void {
+  const sym = Symbol() as any;
   Object.defineProperty(target, propertyKey, {
     get: () => {
-      // @ts-ignore
       return target[sym];
     },
-    set: (value: any) =>  {
+    set: (value: any) => {
       // TODO #1 export this to function
       if (value == null || this.isValidFn(value, this.expectedType)) {
-        // @ts-ignore
         target[sym] = value;
       } else {
-        // @ts-ignore
         _callErrorFn(target, propertyKey, this.expectedType, value, this.errorFn);
       }
     }
@@ -118,7 +113,7 @@ export function ordinaryIsValidFn(value: any, expectedType: ExpectedType): boole
   return true;
 }
 
-function _callErrorFn<T>(target: T, propertyKey: string, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
+function _callErrorFn<T>(target: Target, propertyKey: string | symbol, expectedType: ExpectedType, value: any, errorCb?: ErrorFunction) {
   if (errorCb) {
     errorCb(value);
   } else {
