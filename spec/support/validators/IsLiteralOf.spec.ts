@@ -1,111 +1,10 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsLiteralOf } from '../../../src/validators/IsLiteralOf';
+import { IsLiteralOf, ValidateParams } from '../../../index';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
 
-describe('@IsLiteralOf', () => {
-  let helperClass: HelperClass;
-
-  beforeAll(() => {
-    helperClass = new HelperClass();
-  });
-
-  describe('any type', () => {
-    describe('should not throw an error if assigning', () => {
-      it('null', () => {
-        TYPES['null'].forEach(value => expect(() => helperClass.literal1 = value as any).not.toThrowError());
-      });
-      it('undefined', () => {
-        TYPES['undefined'].forEach(value => expect(() => helperClass.literal1 = value as any).not.toThrowError());
-      });
-    });
-  });
-
-  describe('value1 | value2', () => {
-    describe('should not throw an error if assigning', () => {
-      it('value1', () => {
-        expect(() => helperClass.literal1 = 'value1').not.toThrowError();
-      });
-      it('value2', () => {
-        expect(() => helperClass.literal1 = 'value2').not.toThrowError();
-      });
-    });
-
-    describe('should throw an error if assigning', () => {
-      it('VALUE1', () => {
-        expect(() => helperClass.literal1 = 'VALUE1' as any).toThrowError();
-      });
-      it('anystring', () => {
-        expect(() => helperClass.literal1 = 'anystring' as any).toThrowError();
-      });
-      it('primitive object', () => {
-        TYPES.primitiveObject.forEach(value => expect(() => helperClass.literal1 = value as any).toThrowError());
-      });
-      it('primitive number', () => {
-        TYPES.number.forEach(value => expect(() => helperClass.literal1 = value as any).toThrowError());
-      });
-      it('primitive symbol', () => {
-        TYPES.symbol.forEach(value => expect(() => helperClass.literal1 = value as any).toThrowError());
-      });
-      it('function', () => {
-        TYPES.function.forEach(value => expect(() => helperClass.literal1 = value as any).toThrowError());
-      });
-      it('TestClass1', () => {
-        expect(() => helperClass.literal1 = new TestClass1() as any).toThrowError();
-      });
-    });
-  });
-
-  describe('111 | 222', () => {
-    describe('should not throw an error if assigning', () => {
-      it('value1', () => {
-        expect(() => helperClass.literal2 = 111).not.toThrowError();
-      });
-      it('value2', () => {
-        expect(() => helperClass.literal2 = 222).not.toThrowError();
-      });
-    });
-
-    describe('should throw an error if assigning', () => {
-      it('"111"', () => {
-        expect(() => helperClass.literal2 = '111' as any).toThrowError();
-      });
-      it('"222"', () => {
-        expect(() => helperClass.literal2 = '222' as any).toThrowError();
-      });
-      it('primitive object', () => {
-        TYPES.primitiveObject.forEach(value => expect(() => helperClass.literal1 = value as any).toThrowError());
-      });
-      it('anynumber', () => {
-        expect(() => helperClass.literal2 = 1 as any).toThrowError();
-      });
-      it('primitive symbol', () => {
-        TYPES.symbol.forEach(value => expect(() => helperClass.literal2 = value as any).toThrowError());
-      });
-      it('function', () => {
-        TYPES.function.forEach(value => expect(() => helperClass.literal2 = value as any).toThrowError());
-      });
-      it('TestClass1', () => {
-        expect(() => helperClass.literal2 = new TestClass1() as any).toThrowError();
-      });
-    });
-  });
-
-  it('should execute passed error function', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    Object.entries(TYPES)
-        .filter(type => type[0] !== 'number')
-        .forEach(type => {
-          type[1].forEach((value: any) => {
-            helperClass.invalidLiteralWIthCustomFn = value;
-            expect(consoleErrorSpy).toHaveBeenCalledWith(CUSTOM_ERROR);
-          });
-        });
-  });
-});
-
-class TestClass1 {
+class TestClass {
 }
 
-class HelperClass {
+class PropertyDecoratorHelperClass {
   @IsLiteralOf(['value1', 'value2'])
   literal1: 'value1' | 'value2';
 
@@ -113,6 +12,133 @@ class HelperClass {
   literal2: 111 | 222;
 
   @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR))
-  invalidLiteralWIthCustomFn: 1 | 2
+  invalidLiteralWIthCustomFn: 1 | 2;
 }
+
+
+class ParameterDecoratorHelperClass {
+  literal1: 'value1' | 'value2';
+
+  literal2: 111 | 222;
+  invalidLiteralWIthCustomFn: 1 | 2;
+
+  @ValidateParams()
+  testMethod(@IsLiteralOf(['value1', 'value2']) literal1: any,
+             @IsLiteralOf([111, 222]) literal2: any,
+             @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR)) invalidLiteralWIthCustomFn?: any): any {
+    this.literal1 = literal1;
+    this.literal2 = literal2;
+    this.invalidLiteralWIthCustomFn = invalidLiteralWIthCustomFn;
+  }
+}
+
+const STRING_LITERAL_PROP_KEY = 'literal1';
+const NUMBER_LITERAL_PROP_KEY = 'literal2';
+const NUMBER_LITERAL_PROP_KEY_CUSTOM_ERR_FN = 'invalidLiteralWIthCustomFn';
+const METHOD_NAME = 'testMethod';
+
+
+describe('@IsLiteralOf', () => {
+  PropertyDecorator.shouldNotThrowError([],
+      PropertyDecoratorHelperClass,
+      STRING_LITERAL_PROP_KEY,
+      [
+        'value1',
+        'value2'
+      ]);
+
+  PropertyDecorator.shouldNotThrowError([],
+      PropertyDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY,
+      [
+        111,
+        222
+      ]);
+
+  PropertyDecorator.shouldExecutePassedErrorFunction([],
+      PropertyDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY_CUSTOM_ERR_FN,
+      [
+          'value1'
+      ]);
+
+
+  PropertyDecorator.shouldThrowError([],
+      PropertyDecoratorHelperClass,
+      STRING_LITERAL_PROP_KEY,
+      [
+        1,
+        2,
+        'someValue',
+        'VALUE1',
+        new TestClass()
+      ]);
+
+  PropertyDecorator.shouldThrowError([],
+      PropertyDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY,
+      [
+        '111',
+        '222',
+        333,
+        'value1',
+        new TestClass()
+      ]);
+
+  ParameterDecorator.shouldNotThrowError([],
+      ParameterDecoratorHelperClass,
+      STRING_LITERAL_PROP_KEY,
+      METHOD_NAME,
+      0,
+      [
+        'value1',
+        'value2'
+      ]);
+
+  ParameterDecorator.shouldNotThrowError([],
+      ParameterDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY,
+      METHOD_NAME,
+      1,
+      [
+        111,
+        222
+      ]);
+
+  ParameterDecorator.shouldExecutePassedErrorFunction([],
+      ParameterDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY_CUSTOM_ERR_FN,
+      METHOD_NAME,
+      2,
+      [
+        'value1'
+      ]);
+
+
+  ParameterDecorator.shouldThrowError([],
+      ParameterDecoratorHelperClass,
+      STRING_LITERAL_PROP_KEY,
+      METHOD_NAME,
+      0,
+      [
+        1,
+        2,
+        'someValue',
+        'VALUE1',
+        new TestClass()
+      ]);
+
+  ParameterDecorator.shouldThrowError([],
+      ParameterDecoratorHelperClass,
+      NUMBER_LITERAL_PROP_KEY,
+      METHOD_NAME,
+      1,
+      [
+        '111',
+        '222',
+        333,
+        'value1',
+        new TestClass()
+      ]);
+});
 

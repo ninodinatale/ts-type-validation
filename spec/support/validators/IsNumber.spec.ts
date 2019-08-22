@@ -1,69 +1,60 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsBoolean, IsNumber } from '../../../src/validators';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsNumber, ValidateParams } from '../../../index';
 
-describe('@IsNumber', () => {
-  let helperClass: HelperClass;
+class TestClass {
+}
 
-  beforeAll(() => {
-    helperClass = new HelperClass();
-  });
-
-  describe('should not throw an error if assigning', () => {
-    it('number', () => {
-      TYPES.number.forEach(value => expect(() => helperClass.number = value).not.toThrowError());
-    });
-    it('null', () => {
-      TYPES['null'].forEach(value => expect(() => helperClass.number = value as any).not.toThrowError());
-    });
-    it('undefined', () => {
-      TYPES['undefined'].forEach(value => expect(() => helperClass.number = value as any).not.toThrowError());
-    });
-  });
-
-  describe('should throw an error if assigning', () => {
-    it('Number', () => {
-      expect(() => helperClass.number = new Number(1) as any).toThrowError();
-    });
-    it('primitive object', () => {
-      TYPES.primitiveObject.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('object', () => {
-      TYPES.object.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('primitive string', () => {
-      TYPES.string.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('primitive boolean', () => {
-      TYPES.boolean.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('primitive symbol', () => {
-      TYPES.symbol.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('function', () => {
-      TYPES.function.forEach(value => expect(() => helperClass.number = value as any).toThrowError());
-    });
-    it('TestClass', () => {
-      expect(() => helperClass.number = new TestClass() as any).toThrowError();
-    });
-  });
-
-  it('should execute passed error function', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    Object.entries(TYPES).filter(type => type[0] !== 'number').forEach(type => {
-      type[1].forEach((value: any) => {
-        helperClass.numberWithCustomErrorFn = value;
-        expect(consoleErrorSpy).toHaveBeenCalledWith(CUSTOM_ERROR);
-      });
-    });
-  });
-});
-
-class TestClass {}
-
-class HelperClass {
-  @IsNumber
+class PropertyDecoratorHelperClass {
+  @IsNumber()
   number: number;
 
   @IsNumber(() => console.error(CUSTOM_ERROR))
   numberWithCustomErrorFn: number;
 }
+
+class ParameterDecoratorHelperClass {
+  number: number;
+  numberWithCustomErrorFn: number;
+
+  @ValidateParams()
+  testMethod(@IsNumber() numberArg: number,
+             @IsNumber(() => console.error(CUSTOM_ERROR)) customErrorNumberArg?: number): any {
+    this.number = numberArg;
+    this.numberWithCustomErrorFn = customErrorNumberArg as any;
+  }
+}
+
+const PROPERTY_TYPE = 'number';
+const PROPERTY_KEY = PROPERTY_TYPE;
+const CUSTOM_PROP_KEY = 'numberWithCustomErrorFn';
+const METHOD_NAME = 'testMethod';
+
+describe('@IsNumber', () => {
+  PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY);
+
+  PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY,
+      [new TestClass()]);
+
+  PropertyDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      CUSTOM_PROP_KEY,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0);
+
+  ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      CUSTOM_PROP_KEY, METHOD_NAME, 1,
+      [new TestClass()]);
+});

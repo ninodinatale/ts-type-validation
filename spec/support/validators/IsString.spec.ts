@@ -1,70 +1,60 @@
-import { CUSTOM_ERROR, TYPES } from './helpers/test-helper';
-import { IsString } from '../../../src/validators';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsString, ValidateParams } from '../../../index';
 
-describe('@IsString', () => {
-  let helperClass: HelperClass;
+class TestClass {
+}
 
-  beforeAll(() => {
-    helperClass = new HelperClass();
-  });
-
-  describe('should not throw an error if assigning', () => {
-    it('string', () => {
-      TYPES.string.forEach(value => expect(() => helperClass.string = value).not.toThrowError());
-    });
-    it('null', () => {
-      TYPES['null'].forEach(value => expect(() => helperClass.string = value as any).not.toThrowError());
-    });
-    it('undefined', () => {
-      TYPES['undefined'].forEach(value => expect(() => helperClass.string = value as any).not.toThrowError());
-    });
-  });
-
-  describe('should throw an error if assigning', () => {
-    it('String', () => {
-      expect(() => helperClass.string = new String('') as any).toThrowError();
-    });
-    it('primitive object', () => {
-      TYPES.primitiveObject.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('object', () => {
-      TYPES.object.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('primitive number', () => {
-      TYPES.number.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('primitive boolean', () => {
-      TYPES.boolean.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('primitive symbol', () => {
-      TYPES.symbol.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('function', () => {
-      TYPES.function.forEach(value => expect(() => helperClass.string = value as any).toThrowError());
-    });
-    it('DummyClass', () => {
-      expect(() => helperClass.string = new TestClass() as any).toThrowError();
-    });
-  });
-
-  it('should execute passed error function', () => {
-    const consoleErrorSpy = spyOn(console, 'error');
-    Object.entries(TYPES).filter(type => type[0] !== 'string').forEach(type => {
-      type[1].forEach((value: any) => {
-        helperClass.stringWithCustomErrorFn = value;
-        expect(consoleErrorSpy).toHaveBeenCalledWith(CUSTOM_ERROR);
-      });
-    });
-  });
-});
-
-class TestClass {}
-
-class HelperClass {
-  @IsString
+class PropertyDecoratorHelperClass {
+  @IsString()
   string: string;
 
   @IsString(() => console.error(CUSTOM_ERROR))
   stringWithCustomErrorFn: string;
 }
 
+class ParameterDecoratorHelperClass {
+  string: string;
+  stringWithCustomErrorFn: string;
+
+  @ValidateParams()
+  testMethod(@IsString() arg1: any,
+             @IsString(() => console.error(CUSTOM_ERROR)) arg2?: any): any {
+    this.string = arg1;
+    this.stringWithCustomErrorFn = arg2;
+  }
+}
+
+const PROPERTY_TYPE = 'string';
+const PROPERTY_KEY = PROPERTY_TYPE;
+const CUSTOM_PROP_KEY = 'stringWithCustomErrorFn';
+const METHOD_NAME = 'testMethod';
+
+describe('@IsString', () => {
+  PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY);
+
+  PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      PROPERTY_KEY,
+      [new TestClass()]);
+
+  PropertyDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      PropertyDecoratorHelperClass,
+      CUSTOM_PROP_KEY,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0);
+
+  ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      PROPERTY_KEY, METHOD_NAME, 0,
+      [new TestClass()]);
+
+  ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+      ParameterDecoratorHelperClass,
+      CUSTOM_PROP_KEY, METHOD_NAME, 1,
+      [new TestClass()]);
+});

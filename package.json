@@ -1,11 +1,12 @@
 {
-  "name": "typesafety",
-  "version": "0.0.1",
-  "description": "Decorators to enhance type safety.",
-  "main": "index.ts",
+  "name": "@ndinatale/ts-type-validation",
+  "version": "0.2.2",
+  "description": "Use TypeScript decorators to validate types like all primitives, enums, objects, literals, unions, tuples, intersections etc.",
+  "main": "index",
   "scripts": {
     "dev": "tsc -w",
-    "test": "ts-node node_modules/jasmine/bin/jasmine"
+    "build": "tsc",
+    "test": "tsc && node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register"
   },
   "keywords": [
     "javascript",
@@ -21,7 +22,7 @@
     "ts"
   ],
   "author": "Nino Di Natale",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@types/jasmine": "^3.3.12",
     "jasmine": "^3.4.0",
@@ -31,5 +32,13 @@
   },
   "dependencies": {
     "reflect-metadata": "^0.1.13"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ninodinatale/ts-typevalidation.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ninodinatale/ts-typevalidation/issues"
+  },
+  "homepage": "https://github.com/ninodinatale/ts-typevalidation#readme"
 }

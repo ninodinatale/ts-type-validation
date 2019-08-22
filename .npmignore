@@ -1,0 +1,9 @@
+.idea/
+node_modules/
+spec/
+.gitignore
+tsconfig.json
+tslint.json
+typesafety.iml
+package-lock.json
+**.ts
