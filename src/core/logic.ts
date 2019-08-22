@@ -27,7 +27,8 @@ export function decoratorFactory(validationType: ValidationType, expectedType?: 
 }
 
 function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext, ...args: DecoratorFactoryArgs<T>): void {
-  removeTrailingUndefined(args); // TODO why are there trailing undefineds itfp
+  // TODO why are there trailing undefineds
+  removeTrailingUndefined(args);
   if (isParameterDecoratorArgs(args)) {
     const [target, propertyKey, argumentIndex] = args;
     _installValidatorForParameter.call(this, target, propertyKey, argumentIndex);
@@ -59,7 +60,6 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
       if (validatedParameters) {
         for (let validatedParameter of validatedParameters) {
           const {validationType, expectedType, errorFn, isValidFn, parameterIndex} = validatedParameter;
-          // TODO #1 export this to function
           if (arguments[parameterIndex] != null && !isValidFn(arguments[parameterIndex], expectedType)) {
             _callErrorFn(target, typeof propertyName === 'symbol' ? propertyName.toString() : propertyName, validationType, expectedType, arguments[parameterIndex], errorFn);
             isValid = false;
@@ -85,7 +85,6 @@ export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisCo
       return target[sym];
     },
     set: (value: any) => {
-      // TODO #1 export this to function
       if (value == null || this.isValidFn(value, this.expectedType)) {
         target[sym] = value;
       } else {
@@ -95,7 +94,6 @@ export function installValidatorForProperty(this: OrdinaryDecoratorFactoryThisCo
   });
 }
 
-// TODO: may be unwrapped by using .bind(), problem is here wo do not know `value` yet
 export function getOrdinaryIsValidFn(expectedType: ExpectedType) {
   return (value: any) => ordinaryIsValidFn(value, expectedType);
 }

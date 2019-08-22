@@ -58,8 +58,7 @@ export function isParameterDecoratorArgs<T>(args: DecoratorFactoryArgs<T>): args
   return args.length === 3 && typeof args[2] === 'number';
 }
 
-// TODO why any in args: any
-export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> {
+export function isMethodDecorator<T>(args: MethodDecoratorArgs<T>): args is MethodDecoratorArgs<T> {
   return args.length === 3 && typeof args[2] !== 'number';
 }
 
