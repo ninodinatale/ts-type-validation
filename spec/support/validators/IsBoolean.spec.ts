@@ -1,5 +1,4 @@
-import { CUSTOM_ERROR } from './helpers/test-helper';
-import { ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
 import { IsBoolean, ValidateParams } from '../../../index';
 
 class TestClass {

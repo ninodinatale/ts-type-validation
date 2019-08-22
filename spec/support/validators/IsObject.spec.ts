@@ -1,6 +1,5 @@
-import { CUSTOM_ERROR } from './helpers/test-helper';
 import { IsObject, ValidateParams } from '../../../index';
-import { ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { ParameterDecorator, PropertyDecorator, CUSTOM_ERROR } from './helpers/TestHelper';
 
 class TestClass1 {
 }
