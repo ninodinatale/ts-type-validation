@@ -2,7 +2,6 @@ import { TYPE_ERROR_MESSASGE } from '../../../../src/core/errors';
 
 export namespace PropertyDecorator {
 
-  // TODO typesOfProperty should not be an array anymore
   export function shouldNotThrowError<T extends Object>(typesOfProperty: (keyof TypesForTest)[],
                                                         helperClass: new() => T,
                                                         propertyKey: keyof T,
@@ -154,10 +153,7 @@ function _getShouldThrowExpectFn<T extends Object, K extends keyof T>(
   return function (value: any) {
     const helperInstance = new helperClass();
     expect(() => callbackUnderExpectation(value, helperInstance)).toThrowError(TYPE_ERROR_MESSASGE);
-
-    // TODO Expected false to be undefined because the value is assigned to the prototype instead of the object???
-    // expect(helperInstance[propertyKey]).toBeUndefined();
-    // _expectValuesToBeNull(helperInstance, propertyKey);
+    _expectValuesToBeNull(helperInstance, propertyKey);
   };
 }
 
@@ -169,23 +165,18 @@ function _getShouldExecutePassedErrorFunctionExpectFn<T extends Object, K extend
     const spy = spyOn(console, 'error');
     const helperInstance = new helperClass();
     expect(() => callbackUnderExpectation(value, helperInstance)).not.toThrowError();
-
-    // Values may not have been set to the properties.
-    // TODO Expected false to be undefined because the value is assigned to the prototype instead of the object???
-    // _expectValuesToBeNull(helperInstance, propertyKey);
-
+    _expectValuesToBeNull(helperInstance, propertyKey);
     expect(spy).toHaveBeenCalled();
   };
 }
 
 function _expectValuesToBeNull<T extends Object, K extends keyof T>(helperInstance: T, propertyKey: K) {
+  // TODO: Expected false to be undefined because the value is assigned to the prototype instead of the object (???)
   // Values may not have been set to the properties.
   // expect(helperInstance[propertyKey]).toBeUndefined();
 }
 
 function _getThrowingFilterFn(typesOfProperty: (keyof TypesForTest)[]): (entry: [keyof TypesForTest, any[]]) => boolean {
-  // TODO this tslint is because null and undefined has been removed from TypesForTest (correct?)
-  // @ts-ignore
   return (entry) => entry[0] != 'null' && entry[0] != 'undefined' && !typesOfProperty.includes(entry[0]);
 }
 
@@ -195,17 +186,19 @@ function _getNotThrowingFilterFn(typesOfProperty: (keyof TypesForTest)[]): (entr
 
 export const CUSTOM_ERROR = 'custom error';
 
-export interface TypesForTest {
+interface TypesForTest {
   number: (number)[];
   symbol: symbol[];
   boolean: (boolean)[];
   string: (string)[];
   function: (() => void)[];
   object: any[];
+  'null': null,
+  'undefined': undefined
 }
 
 // These are all existing types. Everything which is not a primitive falls under the Object type.
-export const TYPES: {[key in keyof TypesForTest]: any[]} = {
+const TYPES: {[key in keyof TypesForTest]: any[]} = {
   object: [
     {},
     Object(),
@@ -250,4 +243,10 @@ export const TYPES: {[key in keyof TypesForTest]: any[]} = {
     },
     function () {
     }],
+  'null': [
+      null
+  ],
+  'undefined': [
+      undefined
+  ]
 };
