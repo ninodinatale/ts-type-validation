@@ -196,14 +196,11 @@ interface TypesForTest {
 }
 
 // These are all existing types. Everything which is not a primitive falls under the Object type.
-const TYPES: { [key in keyof TypesForTest]: any[] } = {
+export const TYPES: { [key in keyof TypesForTest]: any[] } = {
   object: [
     {},
     Object(),
     new Object(),
-    new Number(9999),
-    new String('9999'),
-    new Boolean(true)
   ],
   number: [
     1111,

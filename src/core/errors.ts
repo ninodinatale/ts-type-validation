@@ -1,6 +1,6 @@
 import { ExpectedType, HigherOrderType, ValidationType } from './types';
 
-function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | symbol, validationType: ValidationType, expectedType: ExpectedType, value: any): never {
+function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | symbol, validationType: ValidationType | null, expectedType: ExpectedType, value: any): never {
   const propKey = typeof propertyKey === 'symbol' ? propertyKey.description : propertyKey;
   const val = typeof value === 'symbol' ? value.description : value;
   const expType = typeof expectedType === 'string' ? expectedType : expectedType.toString();
