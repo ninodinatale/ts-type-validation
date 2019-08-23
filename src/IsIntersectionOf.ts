@@ -1,5 +1,5 @@
 // import { PropertyDecoratorFunction, ErrorFunction, ExpectedType } from './core/types';
-// import { installValidatorForProperty, ordinaryIsValidFn } from './core';
+// import { installOrdinaryValidatorForProperty, ordinaryIsValidFn } from './core';
 //
 // /**
 //  * // TODO
@@ -11,7 +11,7 @@
 //  */
 // export function IsIntersectionOf(intersectionTypes: Object[], errorFn?: ErrorFunction): PropertyDecoratorFunction {
 //   return (target: any, key: string) => {
-//     installValidatorForProperty.bind({
+//     installOrdinaryValidatorForProperty.bind({
 //       expectedType: {intersection: intersectionTypes},
 //       errorFn: errorFn,
 //       isValidFn: (value: any) => _isValidIntersection.call(null, value, intersectionTypes)
