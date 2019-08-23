@@ -17,6 +17,10 @@ export interface OrdinaryDecoratorFactoryThisContext {
   isValidFn: ValidationFunction
 }
 
+export interface ValidateByMetadataDecoratorFactory {
+  errorFn: ErrorFunction,
+}
+
 export type ErrorFunction = (...value: any[]) => void
 export type ValidationFunction = (value: any, expectedType: ExpectedType) => boolean
 
