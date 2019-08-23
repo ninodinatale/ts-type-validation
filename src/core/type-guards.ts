@@ -1,10 +1,11 @@
 import {
-  ExpectedType,
-  HigherOrderType,
-  MethodDecoratorArgs,
   DecoratorFactoryArgs,
+  ExpectedType,
+  HigherOrderType, MetadataValidationFunction,
+  MethodDecoratorArgs,
+  OrdinaryValidatedParameter,
   ParameterDecoratorArgs,
-  PropertyDecoratorArgs,
+  PropertyDecoratorArgs, ValidatedByMetadataParameter,
   ValidationType
 } from './types';
 
@@ -14,8 +15,8 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   }
 
   let enumValues: Array<HigherOrderType> = [];
-  for(let value in HigherOrderType) {
-    if(typeof HigherOrderType[value] === 'number') {
+  for (let value in HigherOrderType) {
+    if (typeof HigherOrderType[value] === 'number') {
       enumValues.push(value as unknown as HigherOrderType);
     }
   }
@@ -64,4 +65,18 @@ export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> 
 
 export function isPropertyDecorator<T>(args: DecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {
   return args.length === 2;
+}
+
+export function isOrdinaryValidatedParameter(arg: any): arg is OrdinaryValidatedParameter {
+  const {validationType, expectedType, isValidFn, parameterIndex} = arg;
+  return validationType != null && expectedType != null && isValidFn != null && parameterIndex != null;
+}
+
+export function isValidatedByMetadataParameter(arg: any): arg is ValidatedByMetadataParameter {
+  const {parameterIndex, expectedTypes} = arg;
+  return parameterIndex != null && expectedTypes != null;
+}
+
+export function isMetadataValidationFunction(arg: any): arg is MetadataValidationFunction {
+  return arg.constructor && arg.constructor.name;
 }

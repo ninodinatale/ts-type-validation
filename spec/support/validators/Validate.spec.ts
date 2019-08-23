@@ -1,4 +1,4 @@
-import { CUSTOM_ERROR, PropertyDecorator } from './helpers/TestHelper';
+import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
 import { Validate } from '../../../src/Validate';
 import { ValidateParams } from '../../../index';
 
@@ -31,7 +31,6 @@ class PropertyDecoratorHelperClass {
   testClass: TestClass;
 }
 
-// TODO
 class ParameterDecoratorHelperClass {
   number: number;
   numberWithErrorFn: number;
@@ -62,6 +61,8 @@ class ParameterDecoratorHelperClass {
   }
 }
 
+const METHOD_NAME = 'testMethod';
+
 describe('@Validate', () => {
 
   describe('type number', () => {
@@ -78,8 +79,25 @@ describe('@Validate', () => {
     PropertyDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
         PropertyDecoratorHelperClass,
         'numberWithErrorFn');
-  });
 
+    ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        0);
+
+    ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        0);
+
+    ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        'numberWithErrorFn',
+        METHOD_NAME,
+        1);
+  });
 
   describe('type string', () => {
     const PROPERTY_TYPE = 'string';
@@ -91,21 +109,19 @@ describe('@Validate', () => {
     PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
         PropertyDecoratorHelperClass,
         PROPERTY_TYPE);
+
+    ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        2);
+
+    ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        2);
   });
-
-
-  describe('type function', () => {
-    const PROPERTY_TYPE = 'function';
-
-    PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
-        PropertyDecoratorHelperClass,
-        PROPERTY_TYPE);
-
-    PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
-        PropertyDecoratorHelperClass,
-        PROPERTY_TYPE);
-  });
-
 
   describe('type arrow function', () => {
     const PROPERTY_TYPE = 'function';
@@ -117,6 +133,18 @@ describe('@Validate', () => {
     PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
         PropertyDecoratorHelperClass,
         'arrowFunction');
+
+    ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        'arrowFunction',
+        METHOD_NAME,
+        3);
+
+    ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        'arrowFunction',
+        METHOD_NAME,
+        3);
   });
 
   describe('type symbol', () => {
@@ -129,8 +157,43 @@ describe('@Validate', () => {
     PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
         PropertyDecoratorHelperClass,
         PROPERTY_TYPE);
+
+    ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        4);
+
+    ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        4);
   });
 
+  describe('type boolean', () => {
+    const PROPERTY_TYPE = 'boolean';
+
+    PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        PropertyDecoratorHelperClass,
+        PROPERTY_TYPE);
+
+    PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+        PropertyDecoratorHelperClass,
+        PROPERTY_TYPE);
+
+    ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        5);
+
+    ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        5);
+  });
 
   describe('type TestClass', () => {
     const PROPERTY_TYPE = 'testClass';
@@ -138,26 +201,25 @@ describe('@Validate', () => {
     PropertyDecorator.shouldNotThrowError([],
         PropertyDecoratorHelperClass,
         PROPERTY_TYPE,
-        [new TestClass()]);
+        [
+            new TestClass()
+        ]);
 
-    PropertyDecorator.shouldThrowError([],
+    PropertyDecorator.shouldThrowError(['object'],
         PropertyDecoratorHelperClass,
-        PROPERTY_TYPE, [new Object()]);
+        PROPERTY_TYPE);
+
+    ParameterDecorator.shouldNotThrowError([],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        6);
+
+    ParameterDecorator.shouldThrowError(['object'],
+        ParameterDecoratorHelperClass,
+        PROPERTY_TYPE,
+        METHOD_NAME,
+        6);
   });
 
-
-  // ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
-  //     ParameterDecoratorHelperClass,
-  //     PROPERTY_KEY, METHOD_NAME, 0);
-  //
-  // ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
-  //     ParameterDecoratorHelperClass,
-  //     PROPERTY_KEY, METHOD_NAME, 0,
-  //     [new TestClass()]);
-  //
-  // ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
-  //     ParameterDecoratorHelperClass,
-  //     CUSTOM_PROP_KEY, METHOD_NAME, 1,
-  //     [new TestClass()]);
 });
-

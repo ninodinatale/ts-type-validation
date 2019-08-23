@@ -14,15 +14,25 @@ export interface OrdinaryDecoratorFactoryThisContext {
   validationType: ValidationType,
   expectedType: ExpectedType,
   errorFn: ErrorFunction,
-  isValidFn: ValidationFunction
+  isValidFn: OrdinaryValidationFunction
 }
 
 export interface ValidateByMetadataDecoratorFactory {
   errorFn: ErrorFunction,
 }
 
+export interface OrdinaryValidatedParameter extends OrdinaryDecoratorFactoryThisContext {
+  parameterIndex: number
+}
+
+export interface ValidatedByMetadataParameter extends ValidateByMetadataDecoratorFactory {
+  parameterIndex: number;
+  expectedTypes: Function[];
+}
+
 export type ErrorFunction = (...value: any[]) => void
-export type ValidationFunction = (value: any, expectedType: ExpectedType) => boolean
+export type OrdinaryValidationFunction = (value: any, expectedType: ExpectedType) => boolean
+export type MetadataValidationFunction = (value: any, expectedType: Function) => boolean
 
 export enum HigherOrderType {
   Object,

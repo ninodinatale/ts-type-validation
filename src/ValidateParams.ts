@@ -1,5 +1,5 @@
-import { installOrdinaryValidatorForMethod } from './core/logic';
+import { installValidatorForMethod } from './core/logic';
 
 export function ValidateParams(): MethodDecorator {
-  return installOrdinaryValidatorForMethod;
+  return installValidatorForMethod;
 }
