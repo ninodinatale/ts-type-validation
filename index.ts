@@ -3,6 +3,7 @@ import { IsLiteralOf } from './src/IsLiteralOf';
 import { IsTupleOf } from './src/IsTupleOf';
 import { IsUnionOf } from './src/IsUnionOf';
 import { Validate } from './src/Validate';
+import { NotNull } from './src/NotNull';
 import { ValidateParams } from './src/ValidateParams';
 
 export {
@@ -11,5 +12,6 @@ export {
   IsTupleOf,
   IsUnionOf,
   Validate,
-  ValidateParams
+  ValidateParams,
+  NotNull
 };

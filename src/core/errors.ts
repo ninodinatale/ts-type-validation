@@ -1,11 +1,23 @@
 import { ExpectedType, HigherOrderType, ValidationType } from './types';
+import { isParameterDecoratorArgs } from './type-guards';
 
-function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | symbol, validationType: ValidationType | null, expectedType: ExpectedType, value: any): never {
+function throwTypeErrorFor<T extends Object>(validationType: ValidationType | undefined, expectedType: ExpectedType, value: any, target: T, propertyKey: string | symbol, parameterIndex: number | undefined): never {
   const propKey = typeof propertyKey === 'symbol' ? propertyKey.description : propertyKey;
   const val = typeof value === 'symbol' ? value.description : value;
-  const expType = typeof expectedType === 'string' ? expectedType : expectedType.toString();
 
-  let higherOrderTypeStr: string;
+  let expType: string;
+  switch (expectedType) {
+    case typeof expectedType === 'string':
+      expType = expectedType + '';
+      break;
+    case HigherOrderType.NotNull:
+      expType = 'not null';
+      break;
+    default:
+      expType = expectedType.toString();
+  }
+
+  let higherOrderTypeStr: string = '';
   switch (validationType) {
     case HigherOrderType.Literal:
       higherOrderTypeStr = 'literal of';
@@ -33,7 +45,11 @@ function throwTypeErrorFor<T extends Object>(target: T, propertyKey: string | sy
     errorMessageExpected = `Expected ${expType}`;
   }
 
-  throw new TypeError(`Invalid assignment to property ${propKey} of object ${target.constructor.name}. ${errorMessageExpected}, but assigned value was ${val} (${typeof val})`);
+  if (isParameterDecoratorArgs([target, propertyKey, parameterIndex])) {
+    throw new TypeError(`Invalid assignment to parameter with index ${parameterIndex} of called function ${propKey} of object ${target.constructor.name}. ${errorMessageExpected}, but assigned value was ${val} (${typeof val})`);
+  } else {
+    throw new TypeError(`Invalid assignment to property ${propKey} of object ${target.constructor.name}. ${errorMessageExpected}, but assigned value was ${val} (${typeof val})`);
+  }
 }
 
 export { throwTypeErrorFor };

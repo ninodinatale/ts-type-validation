@@ -9,6 +9,9 @@ export function IsTupleOf(...args: AdvancedValidatorArgs): DecoratorFactory {
 }
 
 function _isValidTuple(value: any, tuples: ExpectedType): boolean {
+  if (value == null) {
+    return true;
+  }
   // @ts-ignore: literals has been checked to be of type array in decoratorFactory already
   if (value.length !== tuples.length) {
     return false;

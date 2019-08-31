@@ -9,6 +9,9 @@ export function IsUnionOf(...args: AdvancedValidatorArgs): DecoratorFactory {
 }
 
 function _isValidUnion(value: any, unionTypes: ExpectedType): boolean {
+  if (value == null) {
+    return true;
+  }
   // @ts-ignore: literals has been checked to be of type array in decoratorFactory already
   return unionTypes.some((type: ExpectedType) => {
     return ordinaryIsValidFn(value, type);

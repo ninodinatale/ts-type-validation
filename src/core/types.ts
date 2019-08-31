@@ -39,10 +39,11 @@ export enum HigherOrderType {
   Enum,
   Literal,
   Tuple,
-  Union
+  Union,
+  NotNull
 }
 
-export type ExpectedType = PrimitiveType | Object
+export type ExpectedType = PrimitiveType | Object | HigherOrderType.NotNull
 export type ValidationType = PrimitiveType | HigherOrderType
 
 export type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'symbol' | 'function';

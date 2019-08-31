@@ -1,5 +1,7 @@
 import { IsTupleOf, ValidateParams } from '../../../index';
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 
 class TestClass {
 }

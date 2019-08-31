@@ -9,6 +9,9 @@ export function IsEnumOf(...args: AdvancedValidatorArgs): DecoratorFactory {
 }
 
 function _isValidEnum<T extends ExpectedType>(value: any, _enum: T): boolean {
+  if (value == null) {
+    return true;
+  }
   // number based (default)
   // Number() is an object, but will be unboxed by JS, which will return
   // true if the index exists in _enum. Therefore we check explicitly that value is not an object. This
