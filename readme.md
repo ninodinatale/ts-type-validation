@@ -17,16 +17,18 @@ Use TypeScript's decorators combined with emitted metadata of type definitions t
 - [Installation](#installation)
 - [Features](#features)
 - [Usage](#usage)
-  - [Boolean](#boolean)
-  - [Function](#function)
-  - [Number](#number)
-  - [String](#string)
-  - [Symbol](#symbol)
-  - [Object](#object)
-  - [Enum](#enum)
-  - [Literals](#literals)
-  - [Tuple](#tuple)
-  - [Union](#union)
+  - [Type validations](#type-validations)
+    - [Boolean](#boolean)
+    - [Function](#function)
+    - [Number](#number)
+    - [String](#string)
+    - [Symbol](#symbol)
+    - [Object](#object)
+    - [Enum](#enum)
+    - [Literals](#literals)
+    - [Tuple](#tuple)
+    - [Union](#union)
+  - [Validation upon not null](#validation-upon-not-null)
 - [Planned features](#planned-features)
 - [License](#license)
 
@@ -79,6 +81,11 @@ just by the type definition provided by TypeScript.
 Additionally, with the decorators `@IsEnumOf()`, `@IsLiteralOf()`, `@IsTupleOf()`, and (soon) `@IsIntersectionOf()` there's the
 opportunity to validate upon these higher order types, although the type definition won't (and can't) be considered.
 
+### Validation upon "not null"
+
+With the decorator `@NotNull()`, it's possible to validate that the assigned value is not null or undefined on 
+decorated properties and arguments.  
+
 ---
 
 ## Usage
@@ -94,8 +101,9 @@ function as the last argument to the decorator which will be executed instead of
 The function which holds the parameter decorators needs to be decorated with `@ValidateParams()` in order to validate
 the params at all.
 
-### Boolean
-#### Property Decorator
+### Type validations
+#### Boolean
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -108,7 +116,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -122,8 +130,8 @@ class Foo {
 }
 ```
 
-### Function
-#### Property Decorator
+#### Function
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -136,7 +144,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -150,8 +158,8 @@ class Foo {
 }
 ```
 
-### Number
-#### Property Decorator
+#### Number
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -164,7 +172,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -178,8 +186,8 @@ class Foo {
 }
 ```
 
-### String
-#### Property Decorator
+#### String
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -192,7 +200,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -206,8 +214,8 @@ class Foo {
 }
 ```
 
-### Symbol
-#### Property Decorator
+#### Symbol
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -220,7 +228,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -234,8 +242,8 @@ class Foo {
 }
 ```
 
-### Object
-#### Property Decorator
+#### Object
+##### Property Decorator
 ```typescript
 import { Validate } from '@ndinatale/ts-type-validation'
 
@@ -252,7 +260,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
 
@@ -270,11 +278,11 @@ class Foo {
 }
 ```
 
-### Enum
+#### Enum
 
 The enum to make the comparison on needs to be passed to the decorator.
 
-#### Property Decorator
+##### Property Decorator
 ```typescript
 import { IsEnumOf } from '@ndinatale/ts-type-validation'
 
@@ -293,7 +301,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 
 enum Bar {
@@ -314,11 +322,11 @@ class Foo {
 }
 ```
 
-### Literals
+#### Literals
 
 The literals to be accepted need to be passed as an array to the decorator.
 
-#### Property Decorator
+##### Property Decorator
 ```typescript
 import { IsLiteralOf } from '@ndinatale/ts-type-validation'
 
@@ -337,7 +345,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 
 enum Bar {
@@ -360,11 +368,11 @@ class Foo {
 }
 ```
 
-### Tuple
+#### Tuple
 
 The tuple types need to be passed as an array to the decorator. (strings for primitive types) 
 
-#### Property Decorator
+##### Property Decorator
 ```typescript
 import { IsTupleOf } from '@ndinatale/ts-type-validation'
 
@@ -386,7 +394,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, IsTupleOf } from '@ndinatale/ts-type-validation'
 
@@ -405,11 +413,11 @@ class Foo {
 }
 ```
 
-### Union
+#### Union
 
 The union types need to be passed as an array to the decorator. (strings for primitive types) 
 
-#### Property Decorator
+##### Property Decorator
 ```typescript
 import { IsUnionOf } from '@ndinatale/ts-type-validation'
 
@@ -431,7 +439,7 @@ class Foo {
 }
 ```
 
-#### Parameter Decorator
+##### Parameter Decorator
 ```typescript
 import { ValidateParams, IsUnionOf } from '@ndinatale/ts-type-validation'
 
@@ -450,6 +458,36 @@ class Foo {
 }
 ```
 
+## Validation upon not null
+
+Use the `@NotNull()` decorator to validate the assigned value upon null or undefined. This can, of course, be used in
+combination with all type validation decorators.
+
+```typescript
+import { NotNull, ValidateParams } from '@ndinatale/ts-type-validation'
+
+class Bar {
+}
+
+class Foo {
+
+  @NotNull()
+  foo: string;
+
+  @NotNull(() => console.error('some custom function')) foobar: [number, string],
+  bar: Bar;
+  
+  @NotNull()
+  foobar: number;
+
+  @ValidateParams()
+  testMethod(@NotNull() foo: string,
+             @NotNull(() => console.error('some custom function')) bar: Bar,
+             @NotNull() foobar: number): void {
+    // ...
+  }
+}
+```
 ---
 
 ## Planned features
@@ -457,7 +495,6 @@ class Foo {
 Ordered by priority:
 
 - Validation on constructor functions and their params.
-- `@NotNull()` to validate upon `undefined` and `null`.
 - `@Range()` to validate the range of a `number` property.
 - `@Length()` to validate the length of an `Array` or `string` property.
 - `@IsIntersectionOf()` to validate on intersections.
