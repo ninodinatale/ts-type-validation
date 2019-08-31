@@ -1,8 +1,8 @@
-import { AdvancedValidatorArgs, DecoratorFactory, ErrorFunction, ExpectedType, HigherOrderType } from './core/types';
+import { AdvancedValidatorArgs, DecoratorFactory, ExpectedType, HigherOrderType, ValidatorOptions } from './core/types';
 import { decoratorFactory } from './core/logic';
 
 export function IsLiteralOf(literals: ExpectedType): any;
-export function IsLiteralOf(literals: ExpectedType, errorFunction: ErrorFunction): any;
+export function IsLiteralOf(literals: ExpectedType, options: ValidatorOptions): any;
 
 export function IsLiteralOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Literal, args[0], args[1], _isValidLiteral);

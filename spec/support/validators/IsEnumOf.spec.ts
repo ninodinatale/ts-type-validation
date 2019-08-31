@@ -26,7 +26,7 @@ class PropertyDecoratorHelperClass {
   @IsEnumOf(StringBasedEnum)
   stringBasedEnum: StringBasedEnum;
 
-  @IsEnumOf(NumberBasedEnum, () => console.error(CUSTOM_ERROR))
+  @IsEnumOf(NumberBasedEnum, {errorCb: () => console.error(CUSTOM_ERROR)})
   numberBasedEnumWithCustomErrorFn: string;
 }
 
@@ -38,7 +38,7 @@ class ParameterDecoratorHelperClass {
   @ValidateParams()
   testMethod(@IsEnumOf(NumberBasedEnum) numberBasedEnum: any,
              @IsEnumOf(StringBasedEnum) stringBasedEnum: any,
-             @IsEnumOf(NumberBasedEnum, () => console.error(CUSTOM_ERROR)) numberBasedEnumWithCustomErrorFn?: any): any {
+             @IsEnumOf(NumberBasedEnum, {errorCb: () => console.error(CUSTOM_ERROR)}) numberBasedEnumWithCustomErrorFn?: any): any {
     this.numberBasedEnum = numberBasedEnum;
     this.stringBasedEnum = stringBasedEnum;
     this.numberBasedEnumWithCustomErrorFn = numberBasedEnumWithCustomErrorFn;

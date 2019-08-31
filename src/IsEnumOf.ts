@@ -1,8 +1,8 @@
-import { AdvancedValidatorArgs, DecoratorFactory, ErrorFunction, ExpectedType, HigherOrderType } from './core/types';
+import { AdvancedValidatorArgs, DecoratorFactory, ExpectedType, HigherOrderType, ValidatorOptions } from './core/types';
 import { decoratorFactory } from './core/logic';
 
 export function IsEnumOf(enumType: ExpectedType): any;
-export function IsEnumOf(enumType: ExpectedType, errorFunction: ErrorFunction): any;
+export function IsEnumOf(enumType: ExpectedType, options: ValidatorOptions): any;
 
 export function IsEnumOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Enum, args[0], args[1], _isValidEnum);

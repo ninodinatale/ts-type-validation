@@ -13,7 +13,7 @@ class PropertyDecoratorHelperClass {
   @IsUnionOf([TestClass, 'string'])
   testClass1OrString: TestClass | string;
 
-  @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
+  @IsUnionOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)})
   stringOrBooleanWithErrorFn: string | boolean;
 }
 
@@ -26,7 +26,7 @@ class ParameterDecoratorHelperClass {
   @ValidateParams()
   testMethod(@IsUnionOf(['string', 'boolean']) stringOrBoolean: any,
              @IsUnionOf([TestClass, 'string']) testClass1OrString: any,
-             @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR)) stringOrBooleanWithErrorFn?: any): any {
+             @IsUnionOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)}) stringOrBooleanWithErrorFn?: any): any {
     this.stringOrBoolean = stringOrBoolean;
     this.testClass1OrString = testClass1OrString;
     this.stringOrBooleanWithErrorFn = stringOrBooleanWithErrorFn;

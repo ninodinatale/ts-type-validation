@@ -16,7 +16,7 @@ class PropertyDecoratorHelperClass {
   @IsTupleOf([Object, 'number'])
   objectNumber: [Object, number];
 
-  @IsTupleOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
+  @IsTupleOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)})
   stringBooleanWithErrorFn: [string, boolean];
 }
 
@@ -31,7 +31,7 @@ class ParameterDecoratorHelperClass {
   testMethod(@IsTupleOf(['string', 'boolean']) stringBoolean: any,
              @IsTupleOf([TestClass, 'number']) testClass1Number: any,
              @IsTupleOf([Object, 'number']) objectNumber: any,
-             @IsTupleOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR)) stringBooleanWithErrorFn?: any): any {
+             @IsTupleOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)}) stringBooleanWithErrorFn?: any): any {
     this.stringBoolean = stringBoolean;
     this.testClass1Number = testClass1Number;
     this.objectNumber = objectNumber;

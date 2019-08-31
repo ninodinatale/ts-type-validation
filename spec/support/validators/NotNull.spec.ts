@@ -11,7 +11,7 @@ class PropertyDecoratorHelperClass {
   @NotNull()
   number: number;
 
-  @NotNull(() => console.error(CUSTOM_ERROR))
+  @NotNull({errorCb: () => console.error(CUSTOM_ERROR)})
   numberWithErrorFn: number;
 
   @NotNull()
@@ -45,7 +45,7 @@ class ParameterDecoratorHelperClass {
   @ValidateParams()
   testMethod(
       @NotNull() number: number,
-      @NotNull(() => console.error(CUSTOM_ERROR)) numberWithErrorFn: number,
+      @NotNull({errorCb: () => console.error(CUSTOM_ERROR)}) numberWithErrorFn: number,
       @NotNull() string: string,
       @NotNull() arrowFunction: Function,
       @NotNull() symbol: symbol,

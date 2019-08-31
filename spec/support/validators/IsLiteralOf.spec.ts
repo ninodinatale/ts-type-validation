@@ -13,7 +13,7 @@ class PropertyDecoratorHelperClass {
   @IsLiteralOf([111, 222])
   literal2: 111 | 222;
 
-  @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR))
+  @IsLiteralOf([1, 2], {errorCb: () => console.error(CUSTOM_ERROR)})
   invalidLiteralWIthCustomFn: 1 | 2;
 }
 
@@ -27,7 +27,7 @@ class ParameterDecoratorHelperClass {
   @ValidateParams()
   testMethod(@IsLiteralOf(['value1', 'value2']) literal1: any,
              @IsLiteralOf([111, 222]) literal2: any,
-             @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR)) invalidLiteralWIthCustomFn?: any): any {
+             @IsLiteralOf([1, 2], {errorCb: () => console.error(CUSTOM_ERROR)}) invalidLiteralWIthCustomFn?: any): any {
     this.literal1 = literal1;
     this.literal2 = literal2;
     this.invalidLiteralWIthCustomFn = invalidLiteralWIthCustomFn;

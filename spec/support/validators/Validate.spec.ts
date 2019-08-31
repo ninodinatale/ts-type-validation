@@ -11,7 +11,7 @@ class PropertyDecoratorHelperClass {
   @Validate()
   number: number;
 
-  @Validate(() => console.error(CUSTOM_ERROR))
+  @Validate({errorCb: () => console.error(CUSTOM_ERROR)})
   numberWithErrorFn: number;
 
   @Validate()
@@ -46,7 +46,7 @@ class ParameterDecoratorHelperClass {
   @ValidateParams()
   testMethod(
       @Validate() number: number,
-      @Validate(() => console.error(CUSTOM_ERROR)) numberWithErrorFn: number,
+      @Validate({errorCb: () => console.error(CUSTOM_ERROR)}) numberWithErrorFn: number,
       @Validate() string: string,
       @Validate() arrowFunction: () => {},
       @Validate() symbol: symbol,

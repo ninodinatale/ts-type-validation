@@ -1,5 +1,10 @@
-export type OrdinaryValidatorArgs = [] | [ErrorFunction];
-export type AdvancedValidatorArgs = [ExpectedType] | [ExpectedType, ErrorFunction];
+export type OrdinaryValidatorArgs = [] | [ValidatorOptions];
+export type AdvancedValidatorArgs = [ExpectedType] | [ExpectedType, ValidatorOptions];
+
+export interface ValidatorOptions {
+  notNull?: boolean,
+  errorCb?: ErrorFunction
+}
 
 export type PropertyDecoratorArgs = [Target, string | symbol]
 export type ParameterDecoratorArgs = [Target, string | symbol, number]

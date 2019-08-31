@@ -12,7 +12,7 @@ import {
   Target,
   ValidateByMetadataDecoratorFactory,
   ValidatedByMetadataParameter,
-  ValidationType
+  ValidationType, ValidatorOptions
 } from './types';
 import {
   isMethodDecorator,
@@ -24,13 +24,13 @@ import {
 } from './type-guards';
 import { removeTrailingUndefined } from './utils';
 
-export function decoratorFactory(validationType?: ValidationType, expectedType?: ExpectedType, errorFn?: ErrorFunction, isValidFn?: OrdinaryValidationFunction): DecoratorFactory {
+export function decoratorFactory(validationType?: ValidationType, expectedType?: ExpectedType, options?: ValidatorOptions, isValidFn?: OrdinaryValidationFunction): DecoratorFactory {
   if (validationType != null) {
     if (isValidExpectedType(validationType, expectedType)) {
       return _ordinaryDecoratorFactory.bind({
         validationType,
         expectedType,
-        errorFn,
+        errorFn: options != null ? options.errorCb : undefined,
         isValidFn: isValidFn ? isValidFn : getOrdinaryIsValidFn(expectedType)
       });
     } else {
@@ -38,7 +38,7 @@ export function decoratorFactory(validationType?: ValidationType, expectedType?:
     }
   } else {
     return _validateByMetadataDecoratorFactory.bind({
-      errorFn
+      errorFn: options != null ? options.errorCb : undefined,
     });
   }
 }

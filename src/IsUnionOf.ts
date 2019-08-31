@@ -1,8 +1,8 @@
-import { AdvancedValidatorArgs, DecoratorFactory, ErrorFunction, ExpectedType, HigherOrderType } from './core/types';
+import { AdvancedValidatorArgs, DecoratorFactory, ExpectedType, HigherOrderType, ValidatorOptions } from './core/types';
 import { decoratorFactory, ordinaryIsValidFn } from './core/logic';
 
 export function IsUnionOf(unions: ExpectedType): any;
-export function IsUnionOf(unions: ExpectedType, errorFunction: ErrorFunction): any;
+export function IsUnionOf(unions: ExpectedType, options: ValidatorOptions): any;
 
 export function IsUnionOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Union, args[0], args[1], _isValidUnion);
