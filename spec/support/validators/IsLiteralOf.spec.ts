@@ -7,7 +7,7 @@ class TestClass {
 }
 
 class PropertyDecoratorHelperClass {
-  @IsLiteralOf(['value1', 'value2'])
+  @IsLiteralOf(['value1', 'value2'], {notNull: true})
   literal1: 'value1' | 'value2';
 
   @IsLiteralOf([111, 222])
@@ -142,5 +142,24 @@ describe('@IsLiteralOf', () => {
         'value1',
         new TestClass()
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          STRING_LITERAL_PROP_KEY,
+          [
+            'value1',
+            'value2'
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          STRING_LITERAL_PROP_KEY,
+          [null, undefined]
+      );
+    });
+  });
 });
 

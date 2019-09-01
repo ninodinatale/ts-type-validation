@@ -18,12 +18,12 @@ export type Target = {[key: string]: any};
 export interface OrdinaryDecoratorFactoryThisContext {
   validationType: ValidationType,
   expectedType: ExpectedType,
-  errorFn: ErrorFunction,
-  isValidFn: OrdinaryValidationFunction
+  isValidFn: OrdinaryValidationFunction,
+  options: ValidatorOptions
 }
 
 export interface ValidateByMetadataDecoratorFactory {
-  errorFn: ErrorFunction,
+  options: ValidatorOptions
 }
 
 export interface OrdinaryValidatedParameter extends OrdinaryDecoratorFactoryThisContext {
@@ -36,8 +36,8 @@ export interface ValidatedByMetadataParameter extends ValidateByMetadataDecorato
 }
 
 export type ErrorFunction = (...value: any[]) => void
-export type OrdinaryValidationFunction = (value: any, expectedType: ExpectedType) => boolean
-export type MetadataValidationFunction = (value: any, expectedType: Function) => boolean
+export type OrdinaryValidationFunction = (value: any, expectedType: ExpectedType, notNull: boolean) => boolean
+export type MetadataValidationFunction = (value: any, expectedType: Function, notNull: boolean) => boolean
 
 export enum HigherOrderType {
   Object,

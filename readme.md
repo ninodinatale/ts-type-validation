@@ -83,8 +83,9 @@ opportunity to validate upon these higher order types, although the type definit
 
 ### Validation upon "not null"
 
-With the decorator `@NotNull()`, it's possible to validate that the assigned value is not null or undefined on 
-decorated properties and arguments.  
+By default, `null` and `undefined` are valid assignments to all decorator functions. Thus they accept an options
+parameter to set the `notNull` flag. If a target should not validate upon type, but only check for not null, there is a
+`@NotNull()` decorator, which only validates upon not `null` and not `undefined`.
 
 ---
 
@@ -95,8 +96,8 @@ the types  `boolean`, `function`, `number`, `string`, `symbol` and `object`, the
 validated accordingly. For TypeScript's higher order types `enums`, `literals`, `tuples` and `intersections`, the passed
 values to the decorator function will be the base of the validation, which means the type definitions will be ignored.
 
-If a validation fails, all validation decorators throw a `TypeError` by default. This can be changed by passing a
-function as the last argument to the decorator which will be executed instead of the `TypeError`.
+If a validation fails, all validation decorators throw a `TypeError` by default. This can be changed by passing an
+options object in which it's possible to define an error callback which will be executed instead of the `TypeError`.
 
 The function which holds the parameter decorators needs to be decorated with `@ValidateParams()` in order to validate
 the params at all.
@@ -111,8 +112,11 @@ class Foo {
   @Validate()
   bar: boolean;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: boolean;
+
+  @Validate({notNull: true})
+  barfoo: boolean;
 }
 ```
 
@@ -124,7 +128,8 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: boolean,
-             @Validate(() => console.error('some custom function')) bar: boolean): void {
+             @Validate({notNull: true}) foobar: boolean,
+             @Validate({errorCb: () => console.error('some custom function')}) bar: boolean): void {
     // ...
   }
 }
@@ -139,7 +144,10 @@ class Foo {
   @Validate()
   bar: Function;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({notNull: true})
+  barfoo: Function;
+
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: Function;
 }
 ```
@@ -152,7 +160,8 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: () => void,
-             @Validate(() => console.error('some custom function')) bar: () => void): void {
+             @Validate({notNull: true}) barfoo: () => void,
+             @Validate({errorCb: () => console.error('some custom function')}) bar: () => void): void {
     // ...
   }
 }
@@ -167,7 +176,10 @@ class Foo {
   @Validate()
   bar: number;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({notNull: true})
+  barfoo: number;
+
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: number;
 }
 ```
@@ -180,7 +192,8 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: number,
-             @Validate(() => console.error('some custom function')) bar: number): void {
+             @Validate({notNull: true}) barfoo: number,
+             @Validate({errorCb: () => console.error('some custom function')}) bar: number): void {
     // ...
   }
 }
@@ -195,7 +208,10 @@ class Foo {
   @Validate()
   bar: string;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({notNull: true})
+  barfoo: string;
+
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: string;
 }
 ```
@@ -208,7 +224,8 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: string,
-             @Validate(() => console.error('some custom function')) bar: string): void {
+             @Validate() barfoo: string,
+             @Validate({errorCb: () => console.error('some custom function')}) bar: string): void {
     // ...
   }
 }
@@ -223,7 +240,10 @@ class Foo {
   @Validate()
   bar: symbol;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({notNull: true})
+  barfoo: symbol;
+
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: symbol;
 }
 ```
@@ -236,7 +256,7 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: symbol,
-             @Validate(() => console.error('some custom function')) bar: symbol): void {
+             @Validate({errorCb: () => console.error('some custom function')}) bar: symbol): void {
     // ...
   }
 }
@@ -255,7 +275,10 @@ class Foo {
   @Validate()
   bar: Bar;
 
-  @Validate(() => console.error('some custom function'))
+  @Validate({notNull: true})
+  barfoo: Bar;
+
+  @Validate({errorCb: () => console.error('some custom function')})
   foobar: Bar;
 }
 ```
@@ -272,7 +295,7 @@ class Foo {
 
   @ValidateParams()
   testMethod(@Validate() foo: Bar,
-             @Validate(() => console.error('some custom function')) bar: Bar): void {
+             @Validate({errorCb: () => console.error('some custom function')}) bar: Bar): void {
     // ...
   }
 }
@@ -296,7 +319,10 @@ class Foo {
   @IsEnumOf(Bar)
   bar: Bar;
 
-  @IsEnumOf(Bar, () => console.error('some custom function'))
+  @IsEnumOf(Bar, {notNull: true})
+  barfoo: Bar;
+
+  @IsEnumOf(Bar, {errorCb: () => console.error('some custom function')})
   foobar: Bar;
 }
 ```
@@ -316,7 +342,7 @@ class Foo {
 
   @ValidateParams()
   testMethod(@IsEnumOf(Bar) foo: Bar,
-             @IsEnumOf(Bar, () => console.error('some custom function')) bar: Bar): void {
+             @IsEnumOf(Bar, {errorCb: () => console.error('some custom function')}) bar: Bar): void {
     // ...
   }
 }
@@ -334,13 +360,16 @@ class Foo {
   @IsLiteralOf(['foo', 'bar'])
   bar: 'foo' | 'bar';
 
-  @IsLiteralOf(['foo', 'bar'], () => console.error('some custom function'))
+  @IsLiteralOf(['foo', 'bar'], {errorCb: () => console.error('some custom function')})
   foobar: 'foo' | 'bar';
   
   @IsLiteralOf([1, 2])
   barfoo: 1 | 2;
 
-  @IsLiteralOf([20, 30], () => console.error('some custom function'))
+  @IsLiteralOf([1, 2], {notNull: true})
+  foobarfoo: 1 | 2;
+
+  @IsLiteralOf([20, 30], {errorCb: () => console.error('some custom function')})
   foobar: 20 | 30;
 }
 ```
@@ -362,7 +391,7 @@ class Foo {
   testMethod(@IsLiteralOf(['foo', 'bar']) foo: 'foo' | 'bar',
              @IsLiteralOf([20, 30]) foo: 20 | 30,
              @IsLiteralOf([1, 2]) foo: 1 | 2,
-             @IsLiteralOf(['foo', 'bar'], () => console.error('some custom function')) bar: 'foo' | 'bar'): void {
+             @IsLiteralOf(['foo', 'bar'], {errorCb: () => console.error('some custom function')}) bar: 'foo' | 'bar'): void {
     // ...
   }
 }
@@ -383,11 +412,14 @@ class Foo {
   @IsTupleOf(['string', 'number'])
   bar: [string, number];
 
-  @IsTupleOf(['number', 'string'], () => console.error('some custom function'))
+  @IsTupleOf(['number', 'string'], {errorCb: () => console.error('some custom function')})
   foobar: [number, string];
 
   @IsTupleOf(['boolean', Object])
   barfoo: [boolean, Object];
+
+  @IsTupleOf(['boolean', Object], {notNull: true})
+  foobarfoo: [boolean, Object];
 
   @IsTupleOf([Bar, 'symbol'])
   foo: [Bar, symbol];
@@ -405,7 +437,7 @@ class Foo {
 
   @ValidateParams()
   testMethod(@IsTupleOf(['string', 'number']) bar: [string, number],
-             @IsTupleOf(['number', 'string'], () => console.error('some custom function')) foobar: [number, string],
+             @IsTupleOf(['number', 'string'], {errorCb: () => console.error('some custom function')}) foobar: [number, string],
              @IsTupleOf(['boolean', Object]) barfoo: [boolean, Object],
              @IsTupleOf([Bar, 'symbol']) foo: [Bar, symbol]): void {
     // ...
@@ -428,11 +460,14 @@ class Foo {
   @IsUnionOf(['string', 'number'])
   bar: string | number;
 
-  @IsUnionOf(['number', 'string'], () => console.error('some custom function'))
+  @IsUnionOf(['number', 'string'], {errorCb: () => console.error('some custom function')})
   foobar: number | string;
 
   @IsUnionOf(['boolean', Object])
   barfoo: boolean | Object;
+
+  @IsUnionOf(['boolean', Object], {notNull: true})
+  foobarfoo: boolean | Object;
 
   @IsUnionOf([Bar, 'symbol'])
   foo: Bar | symbol;
@@ -450,7 +485,7 @@ class Foo {
 
   @ValidateParams()
   testMethod(@IsUnionOf(['string', 'number']) bar: [string, number],
-             @IsUnionOf(['number', 'string'], () => console.error('some custom function')) foobar: [number, string],
+             @IsUnionOf(['number', 'string'], {errorCb: () => console.error('some custom function')}) foobar: [number, string],
              @IsUnionOf(['boolean', Object]) barfoo: [boolean, Object],
              @IsUnionOf([Bar, 'symbol']) foo: [Bar, symbol]): void {
     // ...
@@ -460,8 +495,7 @@ class Foo {
 
 ## Validation upon not null
 
-Use the `@NotNull()` decorator to validate the assigned value upon null or undefined. This can, of course, be used in
-combination with all type validation decorators.
+Use the `@NotNull()` decorator to only validate the assigned value upon null or undefined.
 
 ```typescript
 import { NotNull, ValidateParams } from '@ndinatale/ts-type-validation'

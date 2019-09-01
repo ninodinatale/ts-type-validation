@@ -8,9 +8,9 @@ export function IsTupleOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Tuple, args[0], args[1], _isValidTuple);
 }
 
-function _isValidTuple(value: any, tuples: ExpectedType): boolean {
+function _isValidTuple(value: any, tuples: ExpectedType, notNull: boolean): boolean {
   if (value == null) {
-    return true;
+    return !notNull;
   }
   // @ts-ignore: literals has been checked to be of type array in decoratorFactory already
   if (value.length !== tuples.length) {
@@ -18,6 +18,6 @@ function _isValidTuple(value: any, tuples: ExpectedType): boolean {
   }
   // @ts-ignore: literals has been checked to be of type array in decoratorFactory already
   return tuples.every((type, index) => {
-    return ordinaryIsValidFn(value[index], type);
+    return ordinaryIsValidFn(value[index], type, notNull);
   });
 }

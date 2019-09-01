@@ -1,3 +1,6 @@
+// TODO: the whole concept how the args are generated and passed is bad (all params NOT under test are assigned
+//  null, which leads to fails on @NotNull validations. Lets do it with try...catch and read error message to get
+//  parameter index and only fail upon parameter under test.
 import {
   getNotThrowingFilterFn,
   getShouldExecutePassedErrorFunctionExpectFn,
@@ -19,7 +22,7 @@ export namespace ParameterDecorator {
       performExpectFn(
           getNotThrowingFilterFn(typesOfProperty),
           // @ts-ignore
-          getShouldNotThrowExpectFn(propertyKey, (value, c) => c[methodName](...getArgs(argumentIndex, value)), helperClass),
+          getShouldNotThrowExpectFn(propertyKey, (value, c) => c[methodName](...getArgs(argumentIndex, value)), helperClass, argumentIndex),
           additionalAssignmentValues
       );
     });
@@ -52,7 +55,7 @@ export namespace ParameterDecorator {
           getThrowingFilterFn(typesOfProperty),
           getShouldExecutePassedErrorFunctionExpectFn(propertyKey,
               // @ts-ignore
-              (value, c) => c[methodName](...getArgs(argumentIndex, value)), helperClass),
+              (value, c) => c[methodName](...getArgs(argumentIndex, value)), helperClass, argumentIndex),
           additionalAssignmentValues
       );
     });

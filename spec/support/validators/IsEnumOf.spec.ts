@@ -20,7 +20,7 @@ enum StringBasedEnum {
 
 class PropertyDecoratorHelperClass {
 
-  @IsEnumOf(NumberBasedEnum)
+  @IsEnumOf(NumberBasedEnum, {notNull: true})
   numberBasedEnum: NumberBasedEnum;
 
   @IsEnumOf(StringBasedEnum)
@@ -157,4 +157,24 @@ describe('@IsEnumOf', () => {
         NumberBasedEnum.Three,
         new TestClass()
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          NUMBER_BASED_PROP_KEY,
+          [
+            NumberBasedEnum.One,
+            NumberBasedEnum.Two,
+            NumberBasedEnum.Three
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          NUMBER_BASED_PROP_KEY,
+          [null, undefined]
+      );
+    });
+  });
 });

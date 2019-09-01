@@ -1,6 +1,6 @@
 export function performExpectFn<T>(filterFn: (entry: [keyof TypesForTest, any[]]) => boolean,
-                             expectFn: (value: any) => void,
-                             additionalAssignmentValues?: any[]) {
+                                   expectFn: (value: any) => void,
+                                   additionalAssignmentValues?: any[]) {
   Object.entries(TYPES)
       // @ts-ignore
       .filter(entries => filterFn(entries))
@@ -28,15 +28,19 @@ export function performExpectFn<T>(filterFn: (entry: [keyof TypesForTest, any[]]
 export function getShouldNotThrowExpectFn<T extends Object>(
     propertyKey: keyof T,
     callbackUnderExpectation: (value: any, helperClass: T) => void,
-    helperClass: new() => T) {
+    helperClass: new() => T,
+    argumentIndex?: number) {
   return (value: any) => {
     const helperInstance = new helperClass();
-    expect(() => callbackUnderExpectation(value, helperInstance)).not.toThrowError();
 
-    // Properties' values need to be set to the value.
-    // Don't check NaN because NaN is != NaN.
-    if (typeof value !== 'number' || !isNaN(value)) {
-      expect(helperInstance[propertyKey]).toBe(value);
+    const isParameterUnderTest = executeCallbackUnderExpectationForParameter(callbackUnderExpectation, helperInstance, value, argumentIndex);
+
+    if (isParameterUnderTest) {
+      // Properties' values need to be set to the value.
+      // Don't check NaN because NaN is != NaN.
+      if (typeof value !== 'number' || !isNaN(value)) {
+        expect(helperInstance[propertyKey]).toBe(value);
+      }
     }
   };
 }
@@ -55,13 +59,17 @@ export function getShouldThrowExpectFn<T extends Object, K extends keyof T>(
 export function getShouldExecutePassedErrorFunctionExpectFn<T extends Object, K extends keyof T>(
     propertyKey: keyof T,
     callbackUnderExpectation: (value: any, helperInstance: T) => void,
-    helperClass: new() => T) {
+    helperClass: new() => T,
+    argumentIndex?: number) {
   return (value: any) => {
     const spy = spyOn(console, 'error');
     const helperInstance = new helperClass();
-    expect(() => callbackUnderExpectation(value, helperInstance)).not.toThrowError();
-    _expectValuesToBeNull(helperInstance, propertyKey);
-    expect(spy).toHaveBeenCalled();
+    const isParameterUnderTest = executeCallbackUnderExpectationForParameter(callbackUnderExpectation, helperInstance, value, argumentIndex);
+
+    if (isParameterUnderTest) {
+      _expectValuesToBeNull(helperInstance, propertyKey);
+      expect(spy).toHaveBeenCalled();
+    }
   };
 }
 
@@ -69,6 +77,41 @@ function _expectValuesToBeNull<T extends Object, K extends keyof T>(helperInstan
   // TODO: Expected false to be undefined because the value is assigned to the prototype instead of the object (???)
   // Values may not have been set to the properties.
   // expect(helperInstance[propertyKey]).toBeUndefined();
+}
+
+function executeCallbackUnderExpectationForParameter<T extends Object>(
+    callbackUnderExpectation: (value: any, helperClass: T) => void,
+    helperInstance: T,
+    value: any,
+    argumentIndex?: number): boolean {
+  let isParameterUnderTest = true;
+
+  // catch if parameter is not the one under test in order to continue script.
+  try {
+    callbackUnderExpectation(value, helperInstance);
+  } catch (e) {
+    if (argumentIndex != null) {
+      if (e instanceof TypeError) {
+        if (e.message.match(/Invalid assignment to parameter with index/)) {
+          if (e.message.match(new RegExp(`Invalid assignment to parameter with index ${argumentIndex} `))) {
+            fail('Expected function not to throw error, but it threw TypeError with message: ' + e.message);
+          } else {
+            // Do not fail, argument index is not under test which means the passed value is null/undefined. See
+            // function getArgs() of ParameterDecoratorTestHelper.ts
+            isParameterUnderTest = false;
+          }
+        } else {
+          fail('Expected function not to throw error, but it threw TypeError with message: ' + e.message);
+        }
+      } else {
+        fail('Expected function not to throw error, but it threw ' + e.constructor.name);
+      }
+    } else {
+      fail('Expected function not to throw error, but it threw ' + e.constructor.name);
+    }
+  }
+
+  return isParameterUnderTest;
 }
 
 export function getThrowingFilterFn(typesOfProperty: (keyof TypesForTest)[]): (entry: [keyof TypesForTest, any[]]) => boolean {

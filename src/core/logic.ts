@@ -12,7 +12,8 @@ import {
   Target,
   ValidateByMetadataDecoratorFactory,
   ValidatedByMetadataParameter,
-  ValidationType, ValidatorOptions
+  ValidationType,
+  ValidatorOptions
 } from './types';
 import {
   isMethodDecorator,
@@ -24,21 +25,21 @@ import {
 } from './type-guards';
 import { removeTrailingUndefined } from './utils';
 
-export function decoratorFactory(validationType?: ValidationType, expectedType?: ExpectedType, options?: ValidatorOptions, isValidFn?: OrdinaryValidationFunction): DecoratorFactory {
+export function decoratorFactory(validationType?: ValidationType, expectedType?: ExpectedType, options: ValidatorOptions = {}, isValidFn?: OrdinaryValidationFunction): DecoratorFactory {
   if (validationType != null) {
     if (isValidExpectedType(validationType, expectedType)) {
       return _ordinaryDecoratorFactory.bind({
         validationType,
         expectedType,
-        errorFn: options != null ? options.errorCb : undefined,
-        isValidFn: isValidFn ? isValidFn : getOrdinaryIsValidFn(expectedType)
+        options,
+        isValidFn: isValidFn ? isValidFn : getOrdinaryIsValidFn(expectedType, options.notNull ? options.notNull : false)
       });
     } else {
       throw new Error('Not a valid decorator');
     }
   } else {
     return _validateByMetadataDecoratorFactory.bind({
-      errorFn: options != null ? options.errorCb : undefined,
+      options
     });
   }
 }
@@ -106,18 +107,20 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
 
         for (let validatedParameter of validatedParameters) {
 
-          let validationType: ValidationType, expectedType: ExpectedType | Function, errorFn: ErrorFunction,
-              isValidFn: MetadataValidationFunction | OrdinaryValidationFunction, parameterIndex: number;
+          let validationType: ValidationType, expectedType: ExpectedType | Function, errorFn: ErrorFunction | undefined,
+              notNull: boolean | undefined, isValidFn: MetadataValidationFunction | OrdinaryValidationFunction, parameterIndex: number;
           if (isOrdinaryValidatedParameter(validatedParameter)) {
             validationType = validatedParameter.validationType;
             expectedType = validatedParameter.expectedType;
-            errorFn = validatedParameter.errorFn;
+            errorFn = validatedParameter.options.errorCb;
+            notNull = validatedParameter.options.notNull;
             isValidFn = validatedParameter.isValidFn;
             parameterIndex = validatedParameter.parameterIndex;
 
           } else if (isValidatedByMetadataParameter(validatedParameter)) {
             validationType = null as any;
-            errorFn = validatedParameter.errorFn;
+            errorFn = validatedParameter.options.errorCb;
+            notNull = validatedParameter.options.notNull;
             isValidFn = _isValidByMetadata;
             parameterIndex = validatedParameter.parameterIndex;
             expectedType = validatedParameter.expectedTypes[parameterIndex];
@@ -128,9 +131,9 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
 
           if (!isValidFn(args[parameterIndex],
               // @ts-ignore with the above if-blocks we made sure that expectedType is the correct type to the corresponding isValidFn
-              expectedType)
+              expectedType, notNull)
           ) {
-            _callErrorFn({target, propertyKey, validationType, expectedType, value: args[parameterIndex]}, errorFn);
+            _callErrorFn({target, propertyKey, parameterIndex, validationType, expectedType, value: args[parameterIndex]}, errorFn);
             isValid = false;
           }
         }
@@ -154,10 +157,10 @@ export function installOrdinaryValidatorForProperty(this: OrdinaryDecoratorFacto
       return target[sym];
     },
     set: (value: any) => {
-      if (this.isValidFn(value, this.expectedType)) {
+      if (this.isValidFn(value, this.expectedType, this.options.notNull != null ? this.options.notNull : false)) {
         target[sym] = value;
       } else {
-        _callErrorFn({target, propertyKey, validationType: this.validationType, expectedType: this.expectedType, value}, this.errorFn);
+        _callErrorFn({target, propertyKey, validationType: this.validationType, expectedType: this.expectedType, value}, this.options.errorCb);
       }
     }
   });
@@ -171,27 +174,30 @@ function _installValidatorByMetadataForProperty(this: ValidateByMetadataDecorato
       return target[sym];
     },
     set: (value: any) => {
-      if (_isValidByMetadata(value, type)) {
+      if (_isValidByMetadata(value, type, this.options.notNull ? this.options.notNull : false)) {
         target[sym] = value;
       } else {
-        _callErrorFn({target, propertyKey, expectedType: type.name.toLowerCase(), value}, this.errorFn);
+        _callErrorFn({target, propertyKey, expectedType: type.name.toLowerCase(), value}, this.options.errorCb);
       }
     }
   });
 
 }
 
-function _isValidByMetadata(value: any, expectedType: Function): boolean {
-  return value == null || value instanceof expectedType || typeof value === expectedType.name.toLowerCase();
-}
-
-export function getOrdinaryIsValidFn(expectedType: ExpectedType) {
-  return (value: any) => ordinaryIsValidFn(value, expectedType);
-}
-
-export function ordinaryIsValidFn(value: any, expectedType: ExpectedType): boolean {
+function _isValidByMetadata(value: any, expectedType: Function, notNull: boolean): boolean {
   if (value == null) {
-    return true;
+    return !notNull
+  }
+  return value instanceof expectedType || typeof value === expectedType.name.toLowerCase();
+}
+
+export function getOrdinaryIsValidFn(expectedType: ExpectedType, notNull: boolean): (value: any) => boolean {
+  return (value: any) => ordinaryIsValidFn(value, expectedType, notNull);
+}
+
+export function ordinaryIsValidFn(value: any, expectedType: ExpectedType, notNull: boolean): boolean {
+  if (value == null) {
+    return !notNull;
   }
   if (typeof value !== expectedType) {
     if (typeof value === 'object' && typeof expectedType === 'function') {

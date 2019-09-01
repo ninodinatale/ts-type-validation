@@ -8,9 +8,9 @@ export function IsLiteralOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Literal, args[0], args[1], _isValidLiteral);
 }
 
-function _isValidLiteral(value: any, literals: ExpectedType): boolean {
+function _isValidLiteral(value: any, literals: ExpectedType, notNull: boolean): boolean {
   if (value == null) {
-    return true;
+    return !notNull;
   }
   // @ts-ignore: literals has been checked to be of type ExpectedType in decoratorFactory already
   return literals.some(literal => literal === value);

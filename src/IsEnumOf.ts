@@ -8,9 +8,9 @@ export function IsEnumOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Enum, args[0], args[1], _isValidEnum);
 }
 
-function _isValidEnum<T extends ExpectedType>(value: any, _enum: T): boolean {
+function _isValidEnum<T extends ExpectedType>(value: any, _enum: T, notNull: boolean): boolean {
   if (value == null) {
-    return true;
+    return !notNull;
   }
   // number based (default)
   // Number() is an object, but will be unboxed by JS, which will return

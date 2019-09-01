@@ -7,7 +7,7 @@ class TestClass {
 }
 
 class PropertyDecoratorHelperClass {
-  @IsTupleOf(['string', 'boolean'])
+  @IsTupleOf(['string', 'boolean'], {notNull: true})
   stringBoolean: [string, boolean];
 
   @IsTupleOf([TestClass, 'number'])
@@ -50,8 +50,8 @@ describe('@IsTupleOf', () => {
       PropertyDecoratorHelperClass,
       PROP_KEY_TUPLE1,
       [
-          ['somestring', true],
-          ['', false]
+        ['somestring', true],
+        ['', false]
       ]);
 
   PropertyDecorator.shouldNotThrowError([],
@@ -84,7 +84,7 @@ describe('@IsTupleOf', () => {
       PROP_KEY_TUPLE2,
       [
         [new TestClass(), 'string'],
-        [new Object(), 1],
+        [new Object(), 1]
       ]);
 
   PropertyDecorator.shouldThrowError([],
@@ -92,13 +92,13 @@ describe('@IsTupleOf', () => {
       PROP_KEY_TUPLE3,
       [
         [new TestClass(), 'string'],
-        [new Object(), false],
+        [new Object(), false]
       ]);
 
   PropertyDecorator.shouldExecutePassedErrorFunction([],
       PropertyDecoratorHelperClass,
       CUSTOM_PROP_KEY_ERROR_FN, [
-          [false, false]
+        [false, false]
       ]);
 
   ParameterDecorator.shouldNotThrowError([],
@@ -107,8 +107,8 @@ describe('@IsTupleOf', () => {
       METHOD_NAME,
       0,
       [
-          ['somestring', true],
-          ['', false]
+        ['somestring', true],
+        ['', false]
       ]);
 
   ParameterDecorator.shouldNotThrowError([],
@@ -149,7 +149,7 @@ describe('@IsTupleOf', () => {
       1,
       [
         [new TestClass(), 'string'],
-        [new Object(), 1],
+        [new Object(), 1]
       ]);
 
   ParameterDecorator.shouldThrowError([],
@@ -159,7 +159,7 @@ describe('@IsTupleOf', () => {
       2,
       [
         [new TestClass(), 'string'],
-        [new Object(), false],
+        [new Object(), false]
       ]);
 
   ParameterDecorator.shouldExecutePassedErrorFunction([],
@@ -168,7 +168,26 @@ describe('@IsTupleOf', () => {
       METHOD_NAME,
       3,
       [
-          [false, false]
+        [false, false]
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          PROP_KEY_TUPLE1,
+          [
+            ['somestring', true],
+            ['', false]
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          PROP_KEY_TUPLE1,
+          [null, undefined]
+      );
+    });
+  });
 });
 
