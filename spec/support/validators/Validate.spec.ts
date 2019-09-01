@@ -1,5 +1,4 @@
-import { Validate } from '../../../src/Validate';
-import { ValidateParams } from '../../../index';
+import { Validate, ValidateParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
