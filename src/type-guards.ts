@@ -2,7 +2,6 @@ import {
   DecoratorFactoryArgs,
   ExpectedType,
   HigherOrderType,
-  MetadataValidationFunction,
   MethodDecoratorArgs,
   OrdinaryValidatedParameter,
   ParameterDecoratorArgs,

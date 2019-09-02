@@ -1,4 +1,4 @@
-import { decoratorFactory, installValidatorForMethod, ordinaryIsValidFn } from './src/core/logic';
+import { decoratorFactory, installValidatorForMethod, ordinaryIsValidFn } from './src/core';
 import {
   AdvancedValidatorArgs,
   DecoratorFactory,
@@ -6,7 +6,7 @@ import {
   HigherOrderType,
   OrdinaryValidatorArgs,
   ValidatorOptions
-} from './src/core/types';
+} from './src/types';
 
 
 /**
