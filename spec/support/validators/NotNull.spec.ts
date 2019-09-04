@@ -1,4 +1,4 @@
-import { NotNull, ValidateParams } from '../../../index';
+import { NotNull, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR, TypesForTest } from './helpers/Utils';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 import Spy = jasmine.Spy;
@@ -42,7 +42,7 @@ class ParameterDecoratorHelperClass {
   boolean: boolean;
   testClass: TestClass;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(
       @NotNull() number: number,
       @NotNull({errorCb: () => console.error(CUSTOM_ERROR)}) numberWithErrorFn: number,

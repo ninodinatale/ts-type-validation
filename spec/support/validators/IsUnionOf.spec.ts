@@ -1,4 +1,4 @@
-import { IsUnionOf, ValidateParams } from '../../../index';
+import { IsUnionOf, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
@@ -35,7 +35,7 @@ class ParameterDecoratorHelperClass {
   notNulltestClass1OrString: TestClass | string;
   notNullstringOrBooleanWithErrorFn: string | boolean;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(
       @IsUnionOf(['string', 'boolean']) stringOrBoolean: any,
       @IsUnionOf([TestClass, 'string']) testClass1OrString: any,

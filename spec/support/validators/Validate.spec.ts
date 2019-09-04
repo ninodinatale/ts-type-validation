@@ -1,4 +1,4 @@
-import { Validate, ValidateParams } from '../../../index';
+import { Validate, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
@@ -73,7 +73,7 @@ class ParameterDecoratorHelperClass {
   notNullboolean: boolean;
   notNulltestClass: TestClass;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(
       @Validate() number: number,
       @Validate({errorCb: () => console.error(CUSTOM_ERROR)}) numberWithErrorFn: number,

@@ -1,4 +1,4 @@
-import { IsEnumOf, ValidateParams } from '../../../index';
+import { IsEnumOf, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
@@ -35,7 +35,7 @@ class ParameterDecoratorHelperClass {
   stringBasedEnum: StringBasedEnum;
   numberBasedEnumWithCustomErrorFn: NumberBasedEnum;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsEnumOf(NumberBasedEnum) numberBasedEnum: any,
              @IsEnumOf(StringBasedEnum) stringBasedEnum: any,
              @IsEnumOf(NumberBasedEnum, {errorCb: () => console.error(CUSTOM_ERROR)}) numberBasedEnumWithCustomErrorFn?: any): any {

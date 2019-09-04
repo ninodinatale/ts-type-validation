@@ -1,4 +1,4 @@
-import { IsLiteralOf, ValidateParams } from '../../../index';
+import { IsLiteralOf, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
@@ -24,7 +24,7 @@ class ParameterDecoratorHelperClass {
   literal2: 111 | 222;
   invalidLiteralWIthCustomFn: 1 | 2;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsLiteralOf(['value1', 'value2']) literal1: any,
              @IsLiteralOf([111, 222]) literal2: any,
              @IsLiteralOf([1, 2], {errorCb: () => console.error(CUSTOM_ERROR)}) invalidLiteralWIthCustomFn?: any): any {

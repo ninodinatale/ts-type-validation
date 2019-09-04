@@ -1,4 +1,4 @@
-import { IsTupleOf, ValidateParams } from '../../../index';
+import { IsTupleOf, RegisterParams } from '../../../index';
 import { CUSTOM_ERROR } from './helpers/Utils';
 import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
@@ -27,7 +27,7 @@ class ParameterDecoratorHelperClass {
   objectNumber: [Object, number];
   stringBooleanWithErrorFn: [string, boolean];
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsTupleOf(['string', 'boolean']) stringBoolean: any,
              @IsTupleOf([TestClass, 'number']) testClass1Number: any,
              @IsTupleOf([Object, 'number']) objectNumber: any,

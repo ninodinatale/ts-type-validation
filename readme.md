@@ -99,16 +99,16 @@ values to the decorator function will be the base of the validation, which means
 If a validation fails, all validation decorators throw a `TypeError` by default. This can be changed by passing an
 options object in which it's possible to define an error callback which will be executed instead of the `TypeError`.
 
-The function which holds the parameter decorators needs to be decorated with `@ValidateParams()` in order to validate
+The function which holds the parameter decorators needs to be decorated with `@RegisterParams()` in order to validate
 the params at all.
 
 ### Type validations
 
 To validate method or constructor arguments, you need to register them with `@RegisterConstructorParams` as class
-decorator for constructor arguments and `@ValidateParams` as method decorator for method arguments.
+decorator for constructor arguments and `@RegisterParams` as method decorator for method arguments.
 
 ```typescript
-import { RegisterConstructorParams, ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterConstructorParams, RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 @RegisterConstructorParams()
 class Foo {
@@ -117,7 +117,7 @@ class Foo {
     // ...
   }
   
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: boolean): void {
     // ...
   }
@@ -143,11 +143,11 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: boolean,
              @Validate({notNull: true}) foobar: boolean,
              @Validate({errorCb: () => console.error('some custom function')}) bar: boolean): void {
@@ -175,11 +175,11 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: () => void,
              @Validate({notNull: true}) barfoo: () => void,
              @Validate({errorCb: () => console.error('some custom function')}) bar: () => void): void {
@@ -207,11 +207,11 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: number,
              @Validate({notNull: true}) barfoo: number,
              @Validate({errorCb: () => console.error('some custom function')}) bar: number): void {
@@ -239,11 +239,11 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: string,
              @Validate() barfoo: string,
              @Validate({errorCb: () => console.error('some custom function')}) bar: string): void {
@@ -271,11 +271,11 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: symbol,
              @Validate({errorCb: () => console.error('some custom function')}) bar: symbol): void {
     // ...
@@ -306,7 +306,7 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+import { RegisterParams, Validate } from '@ndinatale/ts-type-validation'
 
 class Bar {
   
@@ -314,7 +314,7 @@ class Bar {
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@Validate() foo: Bar,
              @Validate({errorCb: () => console.error('some custom function')}) bar: Bar): void {
     // ...
@@ -357,11 +357,11 @@ enum Bar {
   Rum
 }
 
-import { ValidateParams, IsEnumOf } from '@ndinatale/ts-type-validation'
+import { RegisterParams, IsEnumOf } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsEnumOf(Bar) foo: Bar,
              @IsEnumOf(Bar, {errorCb: () => console.error('some custom function')}) bar: Bar): void {
     // ...
@@ -404,11 +404,11 @@ enum Bar {
   Rum
 }
 
-import { ValidateParams, IsLiteralOf } from '@ndinatale/ts-type-validation'
+import { RegisterParams, IsLiteralOf } from '@ndinatale/ts-type-validation'
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsLiteralOf(['foo', 'bar']) foo: 'foo' | 'bar',
              @IsLiteralOf([20, 30]) foo: 20 | 30,
              @IsLiteralOf([1, 2]) foo: 1 | 2,
@@ -449,14 +449,14 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, IsTupleOf } from '@ndinatale/ts-type-validation'
+import { RegisterParams, IsTupleOf } from '@ndinatale/ts-type-validation'
 
 class Bar {
 }
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsTupleOf(['string', 'number']) bar: [string, number],
              @IsTupleOf(['number', 'string'], {errorCb: () => console.error('some custom function')}) foobar: [number, string],
              @IsTupleOf(['boolean', Object]) barfoo: [boolean, Object],
@@ -497,14 +497,14 @@ class Foo {
 
 ##### Parameter Decorator
 ```typescript
-import { ValidateParams, IsUnionOf } from '@ndinatale/ts-type-validation'
+import { RegisterParams, IsUnionOf } from '@ndinatale/ts-type-validation'
 
 class Bar {
 }
 
 class Foo {
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsUnionOf(['string', 'number']) bar: [string, number],
              @IsUnionOf(['number', 'string'], {errorCb: () => console.error('some custom function')}) foobar: [number, string],
              @IsUnionOf(['boolean', Object]) barfoo: [boolean, Object],
@@ -519,7 +519,7 @@ class Foo {
 Use the `@NotNull()` decorator to only validate the assigned value upon null or undefined.
 
 ```typescript
-import { NotNull, ValidateParams } from '@ndinatale/ts-type-validation'
+import { NotNull, RegisterParams } from '@ndinatale/ts-type-validation'
 
 class Bar {
 }
@@ -535,7 +535,7 @@ class Foo {
   @NotNull()
   foobar: number;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@NotNull() foo: string,
              @NotNull(() => console.error('some custom function')) bar: Bar,
              @NotNull() foobar: number): void {

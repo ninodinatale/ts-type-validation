@@ -180,7 +180,7 @@ export function RegisterConstructorParams(): any  {
  * Installs decorator for decorated function's parameters.
  * @constructor
  */
-export function ValidateParams(): MethodDecorator {
+export function RegisterParams(): MethodDecorator {
   return installValidatorForMethod;
 }
 
