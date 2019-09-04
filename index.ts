@@ -18,13 +18,13 @@ import {
  * Validate upon declared types. Uses `reflect-metadata` internally.
  * @constructor
  */
-export function Validate(): any;
+export function Validate(): DecoratorFactory;
 /**
  * Validate upon declared types. Uses `reflect-metadata` internally.
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function Validate(options: ValidatorOptions): any;
+export function Validate(options: ValidatorOptions): DecoratorFactory;
 export function Validate(...args: OrdinaryValidatorArgs): DecoratorFactory {
   return decoratorFactory(undefined, undefined, ...args);
 }
@@ -40,7 +40,7 @@ export function NotNull(): any;
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function NotNull(options: ValidatorOptions): any;
+export function NotNull(options: ValidatorOptions): DecoratorFactory;
 export function NotNull(...args: OrdinaryValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.NotNull, HigherOrderType.NotNull, args[0], _isNotNull);
 }
@@ -54,7 +54,7 @@ function _isNotNull(value: any): boolean {
  * @param unions Union types to validate upon.
  * @constructor
  */
-export function IsUnionOf(unions: ExpectedType): any;
+export function IsUnionOf(unions: ExpectedType): DecoratorFactory;
 
 /**
  * Validate value to be a union of {@param unions}.
@@ -62,7 +62,7 @@ export function IsUnionOf(unions: ExpectedType): any;
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function IsUnionOf(unions: ExpectedType, options: ValidatorOptions): any;
+export function IsUnionOf(unions: ExpectedType, options: ValidatorOptions): DecoratorFactory;
 
 export function IsUnionOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Union, args[0], args[1], _isValidUnion);
@@ -83,7 +83,7 @@ function _isValidUnion(value: any, unionTypes: ExpectedType, notNull: boolean): 
  * @param tuples Tuple types to validate upon.
  * @constructor
  */
-export function IsTupleOf(tuples: ExpectedType): any;
+export function IsTupleOf(tuples: ExpectedType): DecoratorFactory;
 
 /**
  * Validate value to be a tuple of {@param tuples}.
@@ -91,7 +91,7 @@ export function IsTupleOf(tuples: ExpectedType): any;
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function IsTupleOf(tuples: ExpectedType, options: ValidatorOptions): any;
+export function IsTupleOf(tuples: ExpectedType, options: ValidatorOptions): DecoratorFactory;
 
 export function IsTupleOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Tuple, args[0], args[1], _isValidTuple);
@@ -116,7 +116,7 @@ function _isValidTuple(value: any, tuples: ExpectedType, notNull: boolean): bool
  * @param literals Literals to validate upon.
  * @constructor
  */
-export function IsLiteralOf(literals: ExpectedType): any;
+export function IsLiteralOf(literals: ExpectedType): DecoratorFactory;
 
 /**
  * Validate value to be a literal of {@param literals}.
@@ -124,7 +124,7 @@ export function IsLiteralOf(literals: ExpectedType): any;
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function IsLiteralOf(literals: ExpectedType, options: ValidatorOptions): any;
+export function IsLiteralOf(literals: ExpectedType, options: ValidatorOptions): DecoratorFactory;
 
 export function IsLiteralOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Literal, args[0], args[1], _isValidLiteral);
@@ -143,7 +143,7 @@ function _isValidLiteral(value: any, literals: ExpectedType, notNull: boolean): 
  * @param enumType Enum to validate upon.
  * @constructor
  */
-export function IsEnumOf(enumType: ExpectedType): any;
+export function IsEnumOf(enumType: ExpectedType): DecoratorFactory;
 
 /**
  * Validate value to be an enum of {@oaram enumType}
@@ -151,7 +151,7 @@ export function IsEnumOf(enumType: ExpectedType): any;
  * @param options ValidatorOptions to set non-nullability and/or error callback.
  * @constructor
  */
-export function IsEnumOf(enumType: ExpectedType, options: ValidatorOptions): any;
+export function IsEnumOf(enumType: ExpectedType, options: ValidatorOptions): DecoratorFactory;
 export function IsEnumOf(...args: AdvancedValidatorArgs): DecoratorFactory {
   return decoratorFactory(HigherOrderType.Enum, args[0], args[1], _isValidEnum);
 }
