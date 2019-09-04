@@ -6,12 +6,13 @@ export interface ValidatorOptions {
   errorCb?: ErrorFunction
 }
 
+export type ClassDecoratorArgs = [{new(...args:any[]):{}}];
 export type PropertyDecoratorArgs = [Target, string | symbol]
 export type ParameterDecoratorArgs = [Target, string | symbol, number]
 export type MethodDecoratorArgs<T> = [Target, string | symbol, TypedPropertyDescriptor<T>];
-export type DecoratorFactoryArgs<T> = PropertyDecoratorArgs | ParameterDecoratorArgs | MethodDecoratorArgs<T>
+export type DecoratorFactoryArgs<T> = PropertyDecoratorArgs | ParameterDecoratorArgs | MethodDecoratorArgs<T> | ClassDecoratorArgs
 
-export type DecoratorFactory = PropertyDecorator | ParameterDecorator | MethodDecorator
+export type DecoratorFactory = PropertyDecorator | ParameterDecorator | MethodDecorator | ClassDecorator
 
 export type Target = {[key: string]: any};
 

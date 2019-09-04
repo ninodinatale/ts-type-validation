@@ -103,6 +103,27 @@ The function which holds the parameter decorators needs to be decorated with `@V
 the params at all.
 
 ### Type validations
+
+To validate method or constructor arguments, you need to register them with `@RegisterConstructorParams` as class
+decorator for constructor arguments and `@ValidateParams` as method decorator for method arguments.
+
+```typescript
+import { RegisterConstructorParams, ValidateParams, Validate } from '@ndinatale/ts-type-validation'
+
+@RegisterConstructorParams()
+class Foo {
+  
+  constructor(@Validate() foo: boolean) {
+    // ...
+  }
+  
+  @ValidateParams()
+  testMethod(@Validate() foo: boolean): void {
+    // ...
+  }
+}
+```
+
 #### Boolean
 ##### Property Decorator
 ```typescript

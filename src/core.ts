@@ -16,6 +16,7 @@ import {
   ValidatorOptions
 } from './types';
 import {
+  isClassDecorator,
   isMethodDecorator,
   isOrdinaryValidatedParameter,
   isParameterDecoratorArgs,
@@ -49,13 +50,16 @@ function _ordinaryDecoratorFactory<T>(this: OrdinaryDecoratorFactoryThisContext,
   removeTrailingUndefined(args);
   if (isParameterDecoratorArgs(args)) {
     const [target, propertyKey, argumentIndex] = args;
-    _installOrdinaryValidatorForParameter.call(this, target, propertyKey, argumentIndex);
+    _installOrdinaryValidatorForParameter.call(this, target, argumentIndex, propertyKey);
   } else if (isMethodDecorator<Function>(args)) {
     const [target, propertyKey, argumentIndex] = args;
     installValidatorForMethod(target, propertyKey, argumentIndex);
   } else if (isPropertyDecorator(args)) {
     const [target, propertyKey] = args;
     installOrdinaryValidatorForProperty.call(this, target, propertyKey);
+  } else if (isClassDecorator(args)) {
+    const [target] = args;
+    installValidatorForClass(target);
   } else {
     throw new Error('Not a valid decorator');
   }
@@ -66,7 +70,7 @@ function _validateByMetadataDecoratorFactory<T>(this: ValidateByMetadataDecorato
   removeTrailingUndefined(args);
   if (isParameterDecoratorArgs(args)) {
     const [target, propertyKey, argumentIndex] = args;
-    _installValidatorByMetadataForParameter.call(this, target, propertyKey, argumentIndex);
+    _installValidatorByMetadataForParameter.call(this, target, argumentIndex, propertyKey);
   } else if (isMethodDecorator<Function>(args)) {
     const [target, propertyKey, argumentIndex] = args;
     installValidatorForMethod(target, propertyKey, argumentIndex);
@@ -79,16 +83,36 @@ function _validateByMetadataDecoratorFactory<T>(this: ValidateByMetadataDecorato
 }
 
 const ordinaryValidateMetadataKey = Symbol();
+function _installOrdinaryValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext, target: Target, parameterIndex: number, propertyKey?: string | symbol): void {
+  if (propertyKey) {
+    _installOrdinaryValidatorForMethodParameter.call(this, target, parameterIndex, propertyKey);
+  } else {
+    _installOrdinaryValidatorForConstructorParameter.call(this, target, parameterIndex);
+  }
+}
 
-function _installOrdinaryValidatorForParameter(this: OrdinaryDecoratorFactoryThisContext, target: Target, propertyKey: string | symbol, parameterIndex: number): void {
+function _installOrdinaryValidatorForMethodParameter(this: OrdinaryDecoratorFactoryThisContext, target: Target, parameterIndex: number, propertyKey: string | symbol, ): void {
   let validatedParameters: OrdinaryValidatedParameter[] = Reflect.getOwnMetadata(ordinaryValidateMetadataKey, target, propertyKey) || [];
   validatedParameters.push(Object.assign({}, {parameterIndex}, this));
   Reflect.defineMetadata(ordinaryValidateMetadataKey, validatedParameters, target, propertyKey);
 }
 
-const validateByMetadataMetadataKey = Symbol();
+function _installOrdinaryValidatorForConstructorParameter(this: OrdinaryDecoratorFactoryThisContext, target: Target, parameterIndex: number): void {
+  let validatedParameters: OrdinaryValidatedParameter[] = Reflect.getOwnMetadata(ordinaryValidateMetadataKey, target) || [];
+  validatedParameters.push(Object.assign({}, {parameterIndex}, this));
+  Reflect.defineMetadata(ordinaryValidateMetadataKey, validatedParameters, target);
+}
 
-function _installValidatorByMetadataForParameter(this: ValidateByMetadataDecoratorFactory, target: Target, propertyKey: string | symbol, parameterIndex: number): void {
+const validateByMetadataMetadataKey = Symbol();
+function _installValidatorByMetadataForParameter(this: ValidateByMetadataDecoratorFactory, target: Target, parameterIndex: number, propertyKey?: string | symbol): void {
+  if (propertyKey) {
+    _installValidatorByMetadataForMethodParameter.call(this, target, parameterIndex, propertyKey);
+  } else {
+    _installValidatorByMetadataForConstructorParameter.call(this, target, parameterIndex);
+  }
+}
+
+function _installValidatorByMetadataForMethodParameter(this: ValidateByMetadataDecoratorFactory, target: Target, parameterIndex: number, propertyKey: string | symbol, ): void {
   let validatedParameters: ValidatedByMetadataParameter[] = Reflect.getOwnMetadata(validateByMetadataMetadataKey, target, propertyKey) || [];
   validatedParameters.push(Object.assign({}, {
     parameterIndex,
@@ -97,12 +121,26 @@ function _installValidatorByMetadataForParameter(this: ValidateByMetadataDecorat
   Reflect.defineMetadata(validateByMetadataMetadataKey, validatedParameters, target, propertyKey);
 }
 
+function _installValidatorByMetadataForConstructorParameter(this: ValidateByMetadataDecoratorFactory, target: Target, parameterIndex: number): void {
+  let validatedParameters: ValidatedByMetadataParameter[] = Reflect.getOwnMetadata(validateByMetadataMetadataKey, target) || [];
+  validatedParameters.push(Object.assign({}, {
+    parameterIndex,
+    expectedTypes: Reflect.getMetadata('design:paramtypes', target)
+  }, this));
+  Reflect.defineMetadata(validateByMetadataMetadataKey, validatedParameters, target);
+}
+
+
 export function installValidatorForMethod<T extends Function>(target: Target, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>): void {
   if (typeof descriptor.value === 'function') {
     let method = descriptor.value;
+    // TODO exportValidateParametersToFunction: tests fail if exported, it's never getting called somehow.
     descriptor.value = function (...args: any[]) {
       let isValid = true;
-      let validatedParameters: (OrdinaryValidatedParameter | ValidatedByMetadataParameter)[] = Reflect.getOwnMetadata(ordinaryValidateMetadataKey, target, propertyKey) || Reflect.getOwnMetadata(validateByMetadataMetadataKey, target, propertyKey);
+      let validatedParameters: (OrdinaryValidatedParameter | ValidatedByMetadataParameter)[] = [];
+
+      validatedParameters.push(...(Reflect.getOwnMetadata(ordinaryValidateMetadataKey, target, propertyKey) || []), ...(Reflect.getOwnMetadata(validateByMetadataMetadataKey, target, propertyKey) || []));
+
       if (validatedParameters) {
 
         for (let validatedParameter of validatedParameters) {
@@ -124,7 +162,6 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
             isValidFn = _isValidByMetadata;
             parameterIndex = validatedParameter.parameterIndex;
             expectedType = validatedParameter.expectedTypes[parameterIndex];
-
           } else {
             throw new Error('Getting parameter metadata failed.');
           }
@@ -150,6 +187,64 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
   }
 }
 
+export function installValidatorForClass<TFunction extends { new(...args: any[]): {} }>(target: TFunction): void {
+  const original = target;
+
+  const newConstructor = function (this: any, ...args: any[]) {
+    // TODO exportValidateParametersToFunction: tests fail if exported, it's never getting called somehow.
+    let isValid = true;
+    let validatedParameters: Array<OrdinaryValidatedParameter | ValidatedByMetadataParameter> = [];
+
+    validatedParameters.push(...(Reflect.getOwnMetadata(ordinaryValidateMetadataKey, target) || []), ...(Reflect.getOwnMetadata(validateByMetadataMetadataKey, target) || []));
+
+    if (validatedParameters) {
+      for (let validatedParameter of validatedParameters) {
+
+        let validationType: ValidationType, expectedType: ExpectedType | Function, errorFn: ErrorFunction | undefined,
+            notNull: boolean | undefined, isValidFn: MetadataValidationFunction | OrdinaryValidationFunction, parameterIndex: number;
+        if (isOrdinaryValidatedParameter(validatedParameter)) {
+          validationType = validatedParameter.validationType;
+          expectedType = validatedParameter.expectedType;
+          errorFn = validatedParameter.options.errorCb;
+          notNull = validatedParameter.options.notNull;
+          isValidFn = validatedParameter.isValidFn;
+          parameterIndex = validatedParameter.parameterIndex;
+
+        } else if (isValidatedByMetadataParameter(validatedParameter)) {
+          validationType = null as any;
+          errorFn = validatedParameter.options.errorCb;
+          notNull = validatedParameter.options.notNull;
+          isValidFn = _isValidByMetadata;
+          parameterIndex = validatedParameter.parameterIndex;
+          expectedType = validatedParameter.expectedTypes[parameterIndex];
+        } else {
+          throw new Error('Getting parameter metadata failed.');
+        }
+
+        if (!isValidFn(args[parameterIndex],
+            // @ts-ignore with the above if-blocks we made sure that expectedType is the correct type to the corresponding isValidFn
+            expectedType, notNull)
+        ) {
+          _callErrorFn({target, parameterIndex, validationType, expectedType, value: args[parameterIndex]}, errorFn);
+          isValid = false;
+        }
+      }
+    }
+
+    if (isValid) {
+      return new original(args);
+    } else {
+      return null;
+    }
+  };
+
+  // Keep the original prototype.
+  newConstructor.prototype = original.prototype;
+
+  // @ts-ignore
+  return newConstructor;
+}
+
 export function installOrdinaryValidatorForProperty(this: OrdinaryDecoratorFactoryThisContext, target: Target, propertyKey: string | symbol): void {
   const sym = Symbol(typeof propertyKey === 'string' ? propertyKey : propertyKey.toString()) as any;
   Object.defineProperty(target, propertyKey, {
@@ -160,7 +255,13 @@ export function installOrdinaryValidatorForProperty(this: OrdinaryDecoratorFacto
       if (this.isValidFn(value, this.expectedType, this.options.notNull != null ? this.options.notNull : false)) {
         target[sym] = value;
       } else {
-        _callErrorFn({target, propertyKey, validationType: this.validationType, expectedType: this.expectedType, value}, this.options.errorCb);
+        _callErrorFn({
+          target,
+          propertyKey,
+          validationType: this.validationType,
+          expectedType: this.expectedType,
+          value
+        }, this.options.errorCb);
       }
     }
   });
@@ -186,7 +287,7 @@ function _installValidatorByMetadataForProperty(this: ValidateByMetadataDecorato
 
 function _isValidByMetadata(value: any, expectedType: Function, notNull: boolean): boolean {
   if (value == null) {
-    return !notNull
+    return !notNull;
   }
   return value instanceof expectedType || typeof value === expectedType.name.toLowerCase();
 }
@@ -211,7 +312,7 @@ export function ordinaryIsValidFn(value: any, expectedType: ExpectedType, notNul
   return true;
 }
 
-function _callErrorFn<T>(validationInfo: { target: Target, propertyKey: string | symbol, parameterIndex?: number, validationType?: ValidationType, expectedType: ExpectedType, value: any }, errorCb?: ErrorFunction) {
+function _callErrorFn<T>(validationInfo: { target: Target, propertyKey?: string | symbol, parameterIndex?: number, validationType?: ValidationType, expectedType: ExpectedType, value: any }, errorCb?: ErrorFunction) {
   if (errorCb) {
     errorCb(validationInfo.value);
   } else {

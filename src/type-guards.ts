@@ -1,4 +1,5 @@
 import {
+  ClassDecoratorArgs,
   DecoratorFactoryArgs,
   ExpectedType,
   HigherOrderType,
@@ -57,6 +58,7 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   return false;
 }
 
+// TODO why any in args: any
 export function isParameterDecoratorArgs<T>(args: any): args is ParameterDecoratorArgs {
   return args.length === 3 && typeof args[2] === 'number';
 }
@@ -68,6 +70,10 @@ export function isMethodDecorator<T>(args: any): args is MethodDecoratorArgs<T> 
 
 export function isPropertyDecorator<T>(args: DecoratorFactoryArgs<T>): args is PropertyDecoratorArgs {
   return args.length === 2;
+}
+
+export function isClassDecorator<T>(args: DecoratorFactoryArgs<T>): args is ClassDecoratorArgs {
+  return args.length === 1 && typeof args[0] === 'function';
 }
 
 export function isOrdinaryValidatedParameter(arg: any): arg is OrdinaryValidatedParameter {

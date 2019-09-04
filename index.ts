@@ -1,4 +1,4 @@
-import { decoratorFactory, installValidatorForMethod, ordinaryIsValidFn } from './src/core';
+import { decoratorFactory, installValidatorForClass, installValidatorForMethod, ordinaryIsValidFn } from './src/core';
 import {
   AdvancedValidatorArgs,
   DecoratorFactory,
@@ -165,6 +165,15 @@ function _isValidEnum<T extends ExpectedType>(value: any, _enum: T, notNull: boo
     // string based
     return Object.values(_enum).includes(value);
   }
+}
+
+/**
+ * Installs decorator for decorated function's parameters.
+ * @constructor
+ */
+// TODO any return value
+export function RegisterConstructorParams(): any  {
+  return installValidatorForClass;
 }
 
 /**
