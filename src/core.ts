@@ -130,8 +130,8 @@ function _installValidatorByMetadataForConstructorParameter(this: ValidateByMeta
   Reflect.defineMetadata(validateByMetadataMetadataKey, validatedParameters, target);
 }
 
-
-export function installValidatorForMethod<T extends Function>(target: Target, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>): void {
+// TODO: replace any type of TypedPropertyDescriptor
+export function installValidatorForMethod<T extends Function>(target: Target, propertyKey: string | symbol, descriptor: TypedPropertyDescriptor<any>): TypedPropertyDescriptor<any> {
   if (typeof descriptor.value === 'function') {
     let method = descriptor.value;
     // TODO exportValidateParametersToFunction: tests fail if exported, it's never getting called somehow.
@@ -185,12 +185,15 @@ export function installValidatorForMethod<T extends Function>(target: Target, pr
   } else {
     throw new Error('Not a valid decorator');
   }
+
+  return descriptor;
 }
 
-export function installValidatorForClass<TFunction extends { new(...args: any[]): {} }>(target: TFunction): void {
+export function installValidatorForClass<TFunction extends Function>(target: TFunction): TFunction | void {
   const original = target;
 
-  const newConstructor = function (this: any, ...args: any[]) {
+  // @ts-ignore TODO
+  const newConstructor: TFunction = function (this: any, ...args: any[]): TFunction {
     // TODO exportValidateParametersToFunction: tests fail if exported, it's never getting called somehow.
     let isValid = true;
     let validatedParameters: Array<OrdinaryValidatedParameter | ValidatedByMetadataParameter> = [];
@@ -222,7 +225,7 @@ export function installValidatorForClass<TFunction extends { new(...args: any[])
         }
 
         if (!isValidFn(args[parameterIndex],
-            // @ts-ignore with the above if-blocks we made sure that expectedType is the correct type to the corresponding isValidFn
+            // @ts-ignore TODO: with the above if-blocks we made sure that expectedType is the correct type to the corresponding isValidFn
             expectedType, notNull)
         ) {
           _callErrorFn({target, parameterIndex, validationType, expectedType, value: args[parameterIndex]}, errorFn);
@@ -232,16 +235,16 @@ export function installValidatorForClass<TFunction extends { new(...args: any[])
     }
 
     if (isValid) {
-      return new original(args);
+      // @ts-ignore TODO
+      return new original(args) as TFunction;
     } else {
-      return null;
+      return original;
     }
   };
 
   // Keep the original prototype.
   newConstructor.prototype = original.prototype;
 
-  // @ts-ignore
   return newConstructor;
 }
 
