@@ -1,17 +1,19 @@
 import {
+  ClassDecoratorArgs,
   DecoratorFactoryArgs,
   ExpectedType,
-  HigherOrderType, MetadataValidationFunction,
+  HigherOrderType,
   MethodDecoratorArgs,
   OrdinaryValidatedParameter,
   ParameterDecoratorArgs,
-  PropertyDecoratorArgs, ValidatedByMetadataParameter,
+  PropertyDecoratorArgs,
+  ValidatedByMetadataParameter,
   ValidationType
 } from './types';
 
 export function isValidExpectedType(validationType: ValidationType, expectedType?: ExpectedType): expectedType is ExpectedType {
   if (!expectedType) {
-    return false;
+    return validationType === HigherOrderType.NotNull;
   }
 
   let enumValues: Array<HigherOrderType> = [];
@@ -26,6 +28,8 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   } else {
     if (Object.values(HigherOrderType).includes(validationType)) {
       switch (validationType) {
+        case HigherOrderType.NotNull:
+          return true;
         case HigherOrderType.Enum:
           // @ts-ignore TODO: This assertion is used for enums. Improve assertion to remove __proto__ access.
           return expectedType.__proto__.constructor.name === 'Object';
@@ -54,7 +58,8 @@ export function isValidExpectedType(validationType: ValidationType, expectedType
   return false;
 }
 
-export function isParameterDecoratorArgs<T>(args: DecoratorFactoryArgs<T>): args is ParameterDecoratorArgs {
+// TODO why any in args: any
+export function isParameterDecoratorArgs<T>(args: any): args is ParameterDecoratorArgs {
   return args.length === 3 && typeof args[2] === 'number';
 }
 
@@ -67,6 +72,10 @@ export function isPropertyDecorator<T>(args: DecoratorFactoryArgs<T>): args is P
   return args.length === 2;
 }
 
+export function isClassDecorator<T>(args: DecoratorFactoryArgs<T>): args is ClassDecoratorArgs {
+  return args.length === 1 && typeof args[0] === 'function';
+}
+
 export function isOrdinaryValidatedParameter(arg: any): arg is OrdinaryValidatedParameter {
   const {validationType, expectedType, isValidFn, parameterIndex} = arg;
   return validationType != null && expectedType != null && isValidFn != null && parameterIndex != null;
@@ -75,8 +84,4 @@ export function isOrdinaryValidatedParameter(arg: any): arg is OrdinaryValidated
 export function isValidatedByMetadataParameter(arg: any): arg is ValidatedByMetadataParameter {
   const {parameterIndex, expectedTypes} = arg;
   return parameterIndex != null && expectedTypes != null;
-}
-
-export function isMetadataValidationFunction(arg: any): arg is MetadataValidationFunction {
-  return arg.constructor && arg.constructor.name;
 }

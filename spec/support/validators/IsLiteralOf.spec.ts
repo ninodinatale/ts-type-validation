@@ -1,17 +1,19 @@
-import { IsLiteralOf, ValidateParams } from '../../../index';
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsLiteralOf, RegisterParams } from '../../../index';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 
 class TestClass {
 }
 
 class PropertyDecoratorHelperClass {
-  @IsLiteralOf(['value1', 'value2'])
+  @IsLiteralOf(['value1', 'value2'], {notNull: true})
   literal1: 'value1' | 'value2';
 
   @IsLiteralOf([111, 222])
   literal2: 111 | 222;
 
-  @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR))
+  @IsLiteralOf([1, 2], {errorCb: () => console.error(CUSTOM_ERROR)})
   invalidLiteralWIthCustomFn: 1 | 2;
 }
 
@@ -22,10 +24,10 @@ class ParameterDecoratorHelperClass {
   literal2: 111 | 222;
   invalidLiteralWIthCustomFn: 1 | 2;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsLiteralOf(['value1', 'value2']) literal1: any,
              @IsLiteralOf([111, 222]) literal2: any,
-             @IsLiteralOf([1, 2], () => console.error(CUSTOM_ERROR)) invalidLiteralWIthCustomFn?: any): any {
+             @IsLiteralOf([1, 2], {errorCb: () => console.error(CUSTOM_ERROR)}) invalidLiteralWIthCustomFn?: any): any {
     this.literal1 = literal1;
     this.literal2 = literal2;
     this.invalidLiteralWIthCustomFn = invalidLiteralWIthCustomFn;
@@ -140,5 +142,24 @@ describe('@IsLiteralOf', () => {
         'value1',
         new TestClass()
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          STRING_LITERAL_PROP_KEY,
+          [
+            'value1',
+            'value2'
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          STRING_LITERAL_PROP_KEY,
+          [null, undefined]
+      );
+    });
+  });
 });
 

@@ -1,5 +1,7 @@
-import { IsUnionOf, ValidateParams } from '../../../index';
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsUnionOf, RegisterParams } from '../../../index';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 
 class TestClass {
 }
@@ -11,8 +13,17 @@ class PropertyDecoratorHelperClass {
   @IsUnionOf([TestClass, 'string'])
   testClass1OrString: TestClass | string;
 
-  @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
+  @IsUnionOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)})
   stringOrBooleanWithErrorFn: string | boolean;
+
+  @IsUnionOf(['string', 'boolean'], {notNull: true})
+  notNullstringOrBoolean: string | boolean;
+
+  @IsUnionOf([TestClass, 'string'], {notNull: true})
+  notNulltestClass1OrString: TestClass | string;
+
+  @IsUnionOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR), notNull: true})
+  notNullstringOrBooleanWithErrorFn: string | boolean;
 }
 
 
@@ -20,14 +31,22 @@ class ParameterDecoratorHelperClass {
   stringOrBoolean: string | boolean;
   testClass1OrString: TestClass | string;
   stringOrBooleanWithErrorFn: string | boolean;
+  notNullstringOrBoolean: string | boolean;
+  notNulltestClass1OrString: TestClass | string;
+  notNullstringOrBooleanWithErrorFn: string | boolean;
 
-  @ValidateParams()
-  testMethod(@IsUnionOf(['string', 'boolean']) stringOrBoolean: any,
-             @IsUnionOf([TestClass, 'string']) testClass1OrString: any,
-             @IsUnionOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR)) stringOrBooleanWithErrorFn?: any): any {
-    this.stringOrBoolean = stringOrBoolean;
-    this.testClass1OrString = testClass1OrString;
-    this.stringOrBooleanWithErrorFn = stringOrBooleanWithErrorFn;
+  @RegisterParams()
+  testMethod(
+      @IsUnionOf(['string', 'boolean']) stringOrBoolean: any,
+      @IsUnionOf([TestClass, 'string']) testClass1OrString: any,
+      @IsUnionOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)}) stringOrBooleanWithErrorFn: any,
+      @IsUnionOf(['string', 'boolean'], {notNull: true}) notNullstringOrBoolean: any,
+      @IsUnionOf([TestClass, 'string'], {notNull: true}) notNulltestClass1OrString: any,
+      @IsUnionOf(['string', 'boolean'], {notNull: true, errorCb: () => console.error(CUSTOM_ERROR)}) notNullstringOrBooleanWithErrorFn?: any
+  ): any {
+    this.notNullstringOrBoolean = notNullstringOrBoolean;
+    this.notNulltestClass1OrString = notNulltestClass1OrString;
+    this.notNullstringOrBooleanWithErrorFn = notNullstringOrBooleanWithErrorFn;
   }
 }
 
@@ -98,5 +117,69 @@ describe('@IsUnionOf', () => {
       PROP_KEY_UNION2,
       METHOD_NAME,
       2);
+
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError(['string', 'boolean'],
+          PropertyDecoratorHelperClass,
+          'notNullstringOrBoolean');
+
+      PropertyDecorator.shouldThrowError(['string', 'boolean'],
+          PropertyDecoratorHelperClass,
+          'notNullstringOrBoolean',
+          [null, undefined]
+      );
+
+      PropertyDecorator.shouldExecutePassedErrorFunction(['string', 'boolean'],
+          PropertyDecoratorHelperClass,
+          'notNullstringOrBooleanWithErrorFn',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError(['string', 'boolean'],
+          ParameterDecoratorHelperClass,
+          'notNullstringOrBoolean',
+          METHOD_NAME,
+          3);
+
+      ParameterDecorator.shouldThrowError(['string', 'boolean'],
+          ParameterDecoratorHelperClass,
+          'notNullstringOrBoolean',
+          METHOD_NAME,
+          3,
+          [null, undefined]
+      );
+    });
+
+    describe('type TestClass or string', () => {
+
+      PropertyDecorator.shouldNotThrowError(['string'],
+          PropertyDecoratorHelperClass,
+          'notNulltestClass1OrString',
+          [new TestClass()]);
+
+      PropertyDecorator.shouldThrowError(['string'],
+          PropertyDecoratorHelperClass,
+          'notNulltestClass1OrString',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError(['string'],
+          ParameterDecoratorHelperClass,
+          'notNulltestClass1OrString',
+          METHOD_NAME,
+          4);
+
+      ParameterDecorator.shouldThrowError(['string'],
+          ParameterDecoratorHelperClass,
+          'notNulltestClass1OrString',
+          METHOD_NAME,
+          4,
+          [null, undefined]
+      );
+    });
+  });
 });
 

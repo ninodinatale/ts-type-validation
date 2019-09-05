@@ -1,11 +1,13 @@
-import { IsTupleOf, ValidateParams } from '../../../index';
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsTupleOf, RegisterParams } from '../../../index';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 
 class TestClass {
 }
 
 class PropertyDecoratorHelperClass {
-  @IsTupleOf(['string', 'boolean'])
+  @IsTupleOf(['string', 'boolean'], {notNull: true})
   stringBoolean: [string, boolean];
 
   @IsTupleOf([TestClass, 'number'])
@@ -14,7 +16,7 @@ class PropertyDecoratorHelperClass {
   @IsTupleOf([Object, 'number'])
   objectNumber: [Object, number];
 
-  @IsTupleOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR))
+  @IsTupleOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)})
   stringBooleanWithErrorFn: [string, boolean];
 }
 
@@ -25,11 +27,11 @@ class ParameterDecoratorHelperClass {
   objectNumber: [Object, number];
   stringBooleanWithErrorFn: [string, boolean];
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsTupleOf(['string', 'boolean']) stringBoolean: any,
              @IsTupleOf([TestClass, 'number']) testClass1Number: any,
              @IsTupleOf([Object, 'number']) objectNumber: any,
-             @IsTupleOf(['string', 'boolean'], () => console.error(CUSTOM_ERROR)) stringBooleanWithErrorFn?: any): any {
+             @IsTupleOf(['string', 'boolean'], {errorCb: () => console.error(CUSTOM_ERROR)}) stringBooleanWithErrorFn?: any): any {
     this.stringBoolean = stringBoolean;
     this.testClass1Number = testClass1Number;
     this.objectNumber = objectNumber;
@@ -48,8 +50,8 @@ describe('@IsTupleOf', () => {
       PropertyDecoratorHelperClass,
       PROP_KEY_TUPLE1,
       [
-          ['somestring', true],
-          ['', false]
+        ['somestring', true],
+        ['', false]
       ]);
 
   PropertyDecorator.shouldNotThrowError([],
@@ -82,7 +84,7 @@ describe('@IsTupleOf', () => {
       PROP_KEY_TUPLE2,
       [
         [new TestClass(), 'string'],
-        [new Object(), 1],
+        [new Object(), 1]
       ]);
 
   PropertyDecorator.shouldThrowError([],
@@ -90,13 +92,13 @@ describe('@IsTupleOf', () => {
       PROP_KEY_TUPLE3,
       [
         [new TestClass(), 'string'],
-        [new Object(), false],
+        [new Object(), false]
       ]);
 
   PropertyDecorator.shouldExecutePassedErrorFunction([],
       PropertyDecoratorHelperClass,
       CUSTOM_PROP_KEY_ERROR_FN, [
-          [false, false]
+        [false, false]
       ]);
 
   ParameterDecorator.shouldNotThrowError([],
@@ -105,8 +107,8 @@ describe('@IsTupleOf', () => {
       METHOD_NAME,
       0,
       [
-          ['somestring', true],
-          ['', false]
+        ['somestring', true],
+        ['', false]
       ]);
 
   ParameterDecorator.shouldNotThrowError([],
@@ -147,7 +149,7 @@ describe('@IsTupleOf', () => {
       1,
       [
         [new TestClass(), 'string'],
-        [new Object(), 1],
+        [new Object(), 1]
       ]);
 
   ParameterDecorator.shouldThrowError([],
@@ -157,7 +159,7 @@ describe('@IsTupleOf', () => {
       2,
       [
         [new TestClass(), 'string'],
-        [new Object(), false],
+        [new Object(), false]
       ]);
 
   ParameterDecorator.shouldExecutePassedErrorFunction([],
@@ -166,7 +168,26 @@ describe('@IsTupleOf', () => {
       METHOD_NAME,
       3,
       [
-          [false, false]
+        [false, false]
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          PROP_KEY_TUPLE1,
+          [
+            ['somestring', true],
+            ['', false]
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          PROP_KEY_TUPLE1,
+          [null, undefined]
+      );
+    });
+  });
 });
 

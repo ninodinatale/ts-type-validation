@@ -1,5 +1,7 @@
-import { IsEnumOf, ValidateParams } from '../../../index';
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
+import { IsEnumOf, RegisterParams } from '../../../index';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
 
 class TestClass {
 }
@@ -18,13 +20,13 @@ enum StringBasedEnum {
 
 class PropertyDecoratorHelperClass {
 
-  @IsEnumOf(NumberBasedEnum)
+  @IsEnumOf(NumberBasedEnum, {notNull: true})
   numberBasedEnum: NumberBasedEnum;
 
   @IsEnumOf(StringBasedEnum)
   stringBasedEnum: StringBasedEnum;
 
-  @IsEnumOf(NumberBasedEnum, () => console.error(CUSTOM_ERROR))
+  @IsEnumOf(NumberBasedEnum, {errorCb: () => console.error(CUSTOM_ERROR)})
   numberBasedEnumWithCustomErrorFn: string;
 }
 
@@ -33,10 +35,10 @@ class ParameterDecoratorHelperClass {
   stringBasedEnum: StringBasedEnum;
   numberBasedEnumWithCustomErrorFn: NumberBasedEnum;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(@IsEnumOf(NumberBasedEnum) numberBasedEnum: any,
              @IsEnumOf(StringBasedEnum) stringBasedEnum: any,
-             @IsEnumOf(NumberBasedEnum, () => console.error(CUSTOM_ERROR)) numberBasedEnumWithCustomErrorFn?: any): any {
+             @IsEnumOf(NumberBasedEnum, {errorCb: () => console.error(CUSTOM_ERROR)}) numberBasedEnumWithCustomErrorFn?: any): any {
     this.numberBasedEnum = numberBasedEnum;
     this.stringBasedEnum = stringBasedEnum;
     this.numberBasedEnumWithCustomErrorFn = numberBasedEnumWithCustomErrorFn;
@@ -155,4 +157,24 @@ describe('@IsEnumOf', () => {
         NumberBasedEnum.Three,
         new TestClass()
       ]);
+
+  describe('not null of', () => {
+    describe('type string or boolean', () => {
+
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          NUMBER_BASED_PROP_KEY,
+          [
+            NumberBasedEnum.One,
+            NumberBasedEnum.Two,
+            NumberBasedEnum.Three
+          ]);
+
+      PropertyDecorator.shouldThrowError([],
+          PropertyDecoratorHelperClass,
+          NUMBER_BASED_PROP_KEY,
+          [null, undefined]
+      );
+    });
+  });
 });

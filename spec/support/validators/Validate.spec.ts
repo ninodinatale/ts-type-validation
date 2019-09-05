@@ -1,6 +1,7 @@
-import { CUSTOM_ERROR, ParameterDecorator, PropertyDecorator } from './helpers/TestHelper';
-import { Validate } from '../../../src/Validate';
-import { ValidateParams } from '../../../index';
+import { Validate, RegisterParams } from '../../../index';
+import { CUSTOM_ERROR } from './helpers/Utils';
+import { ParameterDecorator } from './helpers/ParameterDecoratorTestHelper';
+import { PropertyDecorator } from './helpers/PropertyDecoratorTestHelper';
 
 class TestClass {
 }
@@ -9,7 +10,7 @@ class PropertyDecoratorHelperClass {
   @Validate()
   number: number;
 
-  @Validate(() => console.error(CUSTOM_ERROR))
+  @Validate({errorCb: () => console.error(CUSTOM_ERROR)})
   numberWithErrorFn: number;
 
   @Validate()
@@ -29,6 +30,30 @@ class PropertyDecoratorHelperClass {
 
   @Validate()
   testClass: TestClass;
+
+  @Validate({notNull: true})
+  notNullnumber: number;
+
+  @Validate({notNull: true, errorCb: () => console.error(CUSTOM_ERROR)})
+  notNullnumberWithErrorFn: number;
+
+  @Validate({notNull: true})
+  notNullstring: string;
+
+  @Validate({notNull: true})
+  notNullfunction: Function;
+
+  @Validate({notNull: true})
+  notNullarrowFunction: () => {};
+
+  @Validate({notNull: true})
+  notNullsymbol: symbol;
+
+  @Validate({notNull: true})
+  notNullboolean: boolean;
+
+  @Validate({notNull: true})
+  notNulltestClass: TestClass;
 }
 
 class ParameterDecoratorHelperClass {
@@ -40,16 +65,30 @@ class ParameterDecoratorHelperClass {
   symbol: symbol;
   boolean: boolean;
   testClass: TestClass;
+  notNullnumber: number;
+  notNullnumberWithErrorFn: number;
+  notNullstring: string;
+  notNullarrowFunction: () => {};
+  notNullsymbol: symbol;
+  notNullboolean: boolean;
+  notNulltestClass: TestClass;
 
-  @ValidateParams()
+  @RegisterParams()
   testMethod(
       @Validate() number: number,
-      @Validate(() => console.error(CUSTOM_ERROR)) numberWithErrorFn: number,
+      @Validate({errorCb: () => console.error(CUSTOM_ERROR)}) numberWithErrorFn: number,
       @Validate() string: string,
       @Validate() arrowFunction: () => {},
       @Validate() symbol: symbol,
       @Validate() boolean: boolean,
-      @Validate() testClass: TestClass
+      @Validate() testClass: TestClass,
+      @Validate({notNull: true}) notNullnumber: number,
+      @Validate({notNull: true, errorCb: () => console.error(CUSTOM_ERROR)}) notNullnumberWithErrorFn: number,
+      @Validate({notNull: true}) notNullstring: string,
+      @Validate({notNull: true}) notNullarrowFunction: () => {},
+      @Validate({notNull: true}) notNullsymbol: symbol,
+      @Validate({notNull: true}) notNullboolean: boolean,
+      @Validate({notNull: true}) notNulltestClass: TestClass
   ): any {
     this.number = number;
     this.numberWithErrorFn = numberWithErrorFn;
@@ -58,6 +97,13 @@ class ParameterDecoratorHelperClass {
     this.symbol = symbol;
     this.boolean = boolean;
     this.testClass = testClass;
+    this.notNullnumber = notNullnumber;
+    this.notNullnumberWithErrorFn = notNullnumberWithErrorFn;
+    this.notNullstring = notNullstring;
+    this.notNullarrowFunction = notNullarrowFunction;
+    this.notNullsymbol = notNullsymbol;
+    this.notNullboolean = notNullboolean;
+    this.notNulltestClass = notNulltestClass;
   }
 }
 
@@ -202,7 +248,7 @@ describe('@Validate', () => {
         PropertyDecoratorHelperClass,
         PROPERTY_TYPE,
         [
-            new TestClass()
+          new TestClass()
         ]);
 
     PropertyDecorator.shouldThrowError(['object'],
@@ -222,4 +268,189 @@ describe('@Validate', () => {
         6);
   });
 
+  describe('not null of', () => {
+
+    describe('type number', () => {
+      const PROPERTY_TYPE = 'number';
+
+      PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullnumber');
+
+      PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullnumber',
+          [null, undefined]
+      );
+
+      PropertyDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullnumberWithErrorFn',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullnumber',
+          METHOD_NAME,
+          7);
+
+      ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          PROPERTY_TYPE,
+          METHOD_NAME,
+          7,
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldExecutePassedErrorFunction([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'numberWithErrorFn',
+          METHOD_NAME,
+          8,
+          [null, undefined]
+      );
+    });
+
+    describe('type string', () => {
+      const PROPERTY_TYPE = 'string';
+
+      PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullstring');
+
+      PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullstring',
+              [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullstring',
+          METHOD_NAME,
+          9);
+
+      ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          PROPERTY_TYPE,
+          METHOD_NAME,
+          9,
+          [null, undefined]
+      );
+    });
+
+    describe('type arrow function', () => {
+      const PROPERTY_TYPE = 'function';
+
+      PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullarrowFunction');
+
+      PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullarrowFunction',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullarrowFunction',
+          METHOD_NAME,
+          10);
+
+      ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullarrowFunction',
+          METHOD_NAME,
+          3,
+          [null, undefined]
+      );
+    });
+
+    describe('type symbol', () => {
+      const PROPERTY_TYPE = 'symbol';
+
+      PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullsymbol');
+
+      PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullsymbol',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullsymbol',
+          METHOD_NAME,
+          11);
+
+      ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          PROPERTY_TYPE,
+          METHOD_NAME,
+          11,
+          [null, undefined]
+      );
+    });
+
+    describe('type boolean', () => {
+      const PROPERTY_TYPE = 'boolean';
+
+      PropertyDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullboolean');
+
+      PropertyDecorator.shouldThrowError([PROPERTY_TYPE],
+          PropertyDecoratorHelperClass,
+          'notNullboolean',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          'notNullboolean',
+          METHOD_NAME,
+          12);
+
+      ParameterDecorator.shouldThrowError([PROPERTY_TYPE],
+          ParameterDecoratorHelperClass,
+          PROPERTY_TYPE,
+          METHOD_NAME,
+          12,
+          [null, undefined]
+      );
+    });
+
+    describe('type TestClass', () => {
+      PropertyDecorator.shouldNotThrowError([],
+          PropertyDecoratorHelperClass,
+          'notNulltestClass',
+          [
+            new TestClass()
+          ]);
+
+      PropertyDecorator.shouldThrowError(['object'],
+          PropertyDecoratorHelperClass,
+          'notNulltestClass',
+          [null, undefined]
+      );
+
+      ParameterDecorator.shouldNotThrowError([],
+          ParameterDecoratorHelperClass,
+          'notNulltestClass',
+          METHOD_NAME,
+          13);
+
+      ParameterDecorator.shouldThrowError(['object'],
+          ParameterDecoratorHelperClass,
+          'notNulltestClass',
+          METHOD_NAME,
+          13,
+          [null, undefined]
+      );
+    });
+  });
 });

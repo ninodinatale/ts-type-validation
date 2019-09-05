@@ -1,24 +1,30 @@
-export type OrdinaryValidatorArgs = [] | [ErrorFunction];
-export type AdvancedValidatorArgs = [ExpectedType] | [ExpectedType, ErrorFunction];
+export type OrdinaryValidatorArgs = [] | [ValidatorOptions];
+export type AdvancedValidatorArgs = [ExpectedType] | [ExpectedType, ValidatorOptions];
 
+export interface ValidatorOptions {
+  notNull?: boolean,
+  errorCb?: ErrorFunction
+}
+
+export type ClassDecoratorArgs = [{new(...args:any[]):{}}];
 export type PropertyDecoratorArgs = [Target, string | symbol]
 export type ParameterDecoratorArgs = [Target, string | symbol, number]
 export type MethodDecoratorArgs<T> = [Target, string | symbol, TypedPropertyDescriptor<T>];
-export type DecoratorFactoryArgs<T> = PropertyDecoratorArgs | ParameterDecoratorArgs | MethodDecoratorArgs<T>
+export type DecoratorFactoryArgs<T> = PropertyDecoratorArgs | ParameterDecoratorArgs | MethodDecoratorArgs<T> | ClassDecoratorArgs
 
-export type DecoratorFactory = PropertyDecorator | ParameterDecorator | MethodDecorator
+export type DecoratorFactory = PropertyDecorator | ParameterDecorator | MethodDecorator | ClassDecorator
 
 export type Target = {[key: string]: any};
 
 export interface OrdinaryDecoratorFactoryThisContext {
   validationType: ValidationType,
   expectedType: ExpectedType,
-  errorFn: ErrorFunction,
-  isValidFn: OrdinaryValidationFunction
+  isValidFn: OrdinaryValidationFunction,
+  options: ValidatorOptions
 }
 
 export interface ValidateByMetadataDecoratorFactory {
-  errorFn: ErrorFunction,
+  options: ValidatorOptions
 }
 
 export interface OrdinaryValidatedParameter extends OrdinaryDecoratorFactoryThisContext {
@@ -31,18 +37,19 @@ export interface ValidatedByMetadataParameter extends ValidateByMetadataDecorato
 }
 
 export type ErrorFunction = (...value: any[]) => void
-export type OrdinaryValidationFunction = (value: any, expectedType: ExpectedType) => boolean
-export type MetadataValidationFunction = (value: any, expectedType: Function) => boolean
+export type OrdinaryValidationFunction = (value: any, expectedType: ExpectedType, notNull: boolean) => boolean
+export type MetadataValidationFunction = (value: any, expectedType: Function, notNull: boolean) => boolean
 
 export enum HigherOrderType {
   Object,
   Enum,
   Literal,
   Tuple,
-  Union
+  Union,
+  NotNull
 }
 
-export type ExpectedType = PrimitiveType | Object
+export type ExpectedType = PrimitiveType | Object | HigherOrderType.NotNull
 export type ValidationType = PrimitiveType | HigherOrderType
 
 export type PrimitiveType = 'string' | 'number' | 'boolean' | 'object' | 'symbol' | 'function';

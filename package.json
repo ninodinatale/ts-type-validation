@@ -1,12 +1,14 @@
 {
   "name": "@ndinatale/ts-type-validation",
-  "version": "0.3.0",
+  "version": "0.4.5",
   "description": "Use TypeScript decorators to validate types like all primitives, enums, objects, literals, unions, tuples, intersections etc.",
-  "main": "index",
+  "main": "index.ts",
+  "types": "index.d.ts",
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc",
-    "test": "tsc && node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register"
+    "test": "tsc && node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register",
+    "build": "tsc -d",
+    "prepublish": "npm run build"
   },
   "keywords": [
     "javascript",
@@ -28,10 +30,12 @@
     "jasmine": "^3.4.0",
     "ts-node": "^8.1.0",
     "tslint": "^5.16.0",
-    "typescript": "^3.4.5"
+    "typestrict": "^1.0.2"
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "@types/node": "^12.7.4",
+    "reflect-metadata": "^0.1.13",
+    "typescript": "^3.4.5"
   },
   "repository": {
     "type": "git",
