@@ -7,3 +7,4 @@ tslint.json
 typesafety.iml
 package-lock.json
 **.ts
+!*.d.ts

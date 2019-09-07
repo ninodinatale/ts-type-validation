@@ -1,6 +1,6 @@
 {
   "name": "@ndinatale/ts-type-validation",
-  "version": "0.4.6",
+  "version": "0.4.9",
   "description": "Use TypeScript decorators to validate types like all primitives, enums, objects, literals, unions, tuples, intersections etc.",
   "main": "index.ts",
   "types": "index.d.ts",
