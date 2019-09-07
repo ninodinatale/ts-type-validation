@@ -8,6 +8,7 @@
     "dev": "tsc -w",
     "test": "tsc && node --inspect node_modules/jasmine/bin/jasmine --require=ts-node/register",
     "build": "tsc -d",
+    "publish": "npm publish --access=public",
     "prepublish": "npm run build"
   },
   "keywords": [
